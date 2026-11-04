@@ -2425,6 +2425,13 @@ async function prepareExplainerInput(specification, inputPath, options = {}) {
     : runtime.prepareExplainer(text, { ...options, inputPath });
 }
 
+// Authored side files (faceplate images) resolve against the JSON the user
+// named, not the snapshot this command renders. Children inherit the value.
+function rememberAuthoredInput(input) {
+  if (!input || process.env.ARCHIFY_INPUT_PATH) return;
+  process.env.ARCHIFY_INPUT_PATH = path.resolve(input);
+}
+
 function rendererEnv(quality, repoRoot, diagnosticJson = false) {
   return {
     ...(quality ? { ARCHIFY_QUALITY_PROFILE: quality } : {}),
@@ -4280,6 +4287,7 @@ function commandRender(args) {
   if (unknown.length) fail(`Unknown render option "${unknown[0]}".`);
   const [type, input, output] = repoArgs.rest;
   if (!type || !input || repoArgs.rest.length > 3) fail(usage());
+  rememberAuthoredInput(input);
   const result = runNode([rendererPath(type), input, ...(output ? [output] : [])], {
     env: rendererEnv(qualityArgs.quality, repoArgs.repoRoot),
   });
@@ -4418,6 +4426,7 @@ async function commandDeliver(args) {
     code: 'cli/usage',
     supportedFixes: ['use: archify deliver <type> <input.json> [output.html] [options]'],
   });
+  rememberAuthoredInput(input);
   const renderer = rendererPath(type);
   const {
     canonicalFuturePath,
@@ -5360,6 +5369,7 @@ async function commandPreview(args) {
   const [type, input, output] = positional;
   if (!type || !input || positional.length > 3) fail(usage());
   if (type === 'explainer') fail('Live preview supports the ten diagram types only. For explainer, run finalize explainer <draft.md> <output.html>, then open the HTML in your browser.');
+  rememberAuthoredInput(input);
   rendererPath(type);
 
   try {
@@ -5907,6 +5917,7 @@ async function commandFinalize(rawArgs) {
     code: 'cli/usage',
     supportedFixes: ['use: archify finalize <type> <input.json> <output.html> [options]'],
   });
+  rememberAuthoredInput(input);
   rendererPath(type);
 
   let runFinalize;
@@ -6985,6 +6996,7 @@ async function commandValidate(args, invocation = {}) {
     code: 'cli/usage',
     supportedFixes: [`use: archify ${invokingCommand} <type> <input.json> [options]`],
   });
+  rememberAuthoredInput(input);
   const renderer = rendererPath(type);
 
   if (layoutJson && !['architecture', 'workflow'].includes(type)) {
