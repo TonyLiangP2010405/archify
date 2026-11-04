@@ -87,9 +87,27 @@ export function createRouter(components, connections = [], {
   componentGapPx = 0,
   minimumTerminalSegmentPx = 0,
   readabilityBottomMargin = 0,
+  fixedPorts = null,
 } = {}) {
   const frameBorders = frames.flatMap((frame) => frameBorderSegments(frame));
   const LABEL_CLEARANCE = 4;
+  // Authored connector ports: a fixed endpoint point per component + port id.
+  function fixedEndpoint(conn, endpoint) {
+    if (!fixedPorts) return null;
+    const componentId = endpoint === 'source' || endpoint === 'from' ? conn.from : conn.to;
+    const portId = endpoint === 'source' || endpoint === 'from' ? conn.fromPort : conn.toPort;
+    return portId ? fixedPorts.get(componentId)?.get(portId) || null : null;
+  }
+  function portedSidesOf(componentId) {
+    const sides = new Set();
+    for (const port of fixedPorts?.get(componentId)?.values() || []) sides.add(port.side);
+    return sides;
+  }
+  function avoidPortedSide(componentId, side) {
+    const ported = portedSidesOf(componentId);
+    if (!ported.size || !ported.has(side)) return side;
+    return ['left', 'right', 'top', 'bottom'].find((candidate) => !ported.has(candidate)) || side;
+  }
   // Labels of already-routed relationships, reserved while planning the rest.
   let reservedLabels = [];
   let honourReservedLabels = true;
@@ -742,14 +760,18 @@ export function createRouter(components, connections = [], {
   function inferredSide(conn, endpoint) {
     return sideFor?.(conn, endpoint) || fanOutSide(conn, endpoint);
   }
-  const automaticPorts = automaticPortSpread(connections, components, {
-    sideFor: inferredSide,
-    ...(maxPortSpacing === null ? {} : { maxSpacing: maxPortSpacing }),
-    // Preserve the established initial placement for ordinary markers; only
-    // widen groups whose arrowheads cannot fit the legacy 14px slots.
-    ...(distinctAutomaticPorts ? { spacingFor: (left, right) =>
-      markerSpacing(left, right) > 14 ? portSpacing(left, right) : 14 } : {}),
-  });
+  const automaticPorts = automaticPortSpread(
+    connections.filter((conn) => !conn.fromPort && !conn.toPort),
+    components,
+    {
+      sideFor: inferredSide,
+      ...(maxPortSpacing === null ? {} : { maxSpacing: maxPortSpacing }),
+      // Preserve the established initial placement for ordinary markers; only
+      // widen groups whose arrowheads cannot fit the legacy 14px slots.
+      ...(distinctAutomaticPorts ? { spacingFor: (left, right) =>
+        markerSpacing(left, right) > 14 ? portSpacing(left, right) : 14 } : {}),
+    },
+  );
   const incidentEndpoints = new Map();
   for (const conn of connections) {
     if (!components.has(conn.from) || !components.has(conn.to)) continue;
@@ -762,10 +784,17 @@ export function createRouter(components, connections = [], {
   function inferredConnectionSides(conn) {
     const from = components.get(conn.from);
     const to = components.get(conn.to);
-    return {
-      fromSide: chosenSide(conn.fromSide, inferredSide(conn, 'source') || defaultFromSide(from, to)),
-      toSide: chosenSide(conn.toSide, inferredSide(conn, 'target') || defaultToSide(from, to)),
-    };
+    const sourcePort = fixedEndpoint(conn, 'source');
+    const targetPort = fixedEndpoint(conn, 'target');
+    let fromSide = chosenSide(conn.fromSide, inferredSide(conn, 'source') || defaultFromSide(from, to));
+    let toSide = chosenSide(conn.toSide, inferredSide(conn, 'target') || defaultToSide(from, to));
+    // A named port owns its side; an ordinary endpoint keeps clear of a side
+    // that already carries named jacks.
+    if (sourcePort) fromSide = sourcePort.side;
+    else if (!conn.fromSide) fromSide = avoidPortedSide(conn.from, fromSide);
+    if (targetPort) toSide = targetPort.side;
+    else if (!conn.toSide) toSide = avoidPortedSide(conn.to, toSide);
+    return { fromSide, toSide };
   }
 
   function connectionSides(conn) {
@@ -782,6 +811,8 @@ export function createRouter(components, connections = [], {
   }
 
   function connectionEndpointSide(conn, endpoint) {
+    const port = fixedEndpoint(conn, endpoint);
+    if (port) return port.side;
     const field = endpoint === 'source' ? 'fromSide' : 'toSide';
     if (conn[field] && conn[field] !== 'auto') return conn[field];
     return connectionSides(conn)[field];
@@ -846,12 +877,18 @@ export function createRouter(components, connections = [], {
     const inferred = inferredConnectionSides(conn);
     const { fromSide, toSide } = sides;
     const legacyPorts = fromSide === inferred.fromSide && toSide === inferred.toSide ? automaticPorts.get(conn) : null;
-    const source = distinctAutomaticPorts
-      ? automaticEndpoint(conn, 'from', from, fromSide, inferred.fromSide)
-      : { point: legacyPorts?.from || anchor(from, fromSide), spread: Boolean(legacyPorts?.from) };
-    const target = distinctAutomaticPorts
-      ? automaticEndpoint(conn, 'to', to, toSide, inferred.toSide)
-      : { point: legacyPorts?.to || anchor(to, toSide), spread: Boolean(legacyPorts?.to) };
+    const sourcePort = fixedEndpoint(conn, 'source');
+    const targetPort = fixedEndpoint(conn, 'target');
+    const source = sourcePort
+      ? { point: sourcePort.point, spread: false }
+      : distinctAutomaticPorts
+        ? automaticEndpoint(conn, 'from', from, fromSide, inferred.fromSide)
+        : { point: legacyPorts?.from || anchor(from, fromSide), spread: Boolean(legacyPorts?.from) };
+    const target = targetPort
+      ? { point: targetPort.point, spread: false }
+      : distinctAutomaticPorts
+        ? automaticEndpoint(conn, 'to', to, toSide, inferred.toSide)
+        : { point: legacyPorts?.to || anchor(to, toSide), spread: Boolean(legacyPorts?.to) };
     const ports = { from: source.spread, to: target.spread };
     const { start, end } = alignFacingPorts(
       conn,
@@ -893,14 +930,27 @@ export function createRouter(components, connections = [], {
   const SIDE_ORDER = ['right', 'bottom', 'left', 'top'];
   function candidateSidePairs(conn) {
     const inferred = inferredConnectionSides(conn);
+    const sourcePort = fixedEndpoint(conn, 'source');
+    const targetPort = fixedEndpoint(conn, 'target');
     const authoredFrom = conn.fromSide && conn.fromSide !== 'auto' ? conn.fromSide : null;
     const authoredTo = conn.toSide && conn.toSide !== 'auto' ? conn.toSide : null;
-    const fromOptions = authoredFrom
-      ? [authoredFrom]
-      : [inferred.fromSide, ...SIDE_ORDER.filter((side) => side !== inferred.fromSide)];
-    const toOptions = authoredTo
-      ? [authoredTo]
-      : [inferred.toSide, ...SIDE_ORDER.filter((side) => side !== inferred.toSide)];
+    // An endpoint without a named port must not plan onto a side that already
+    // carries jacks. Authored sides stay, so the validator can report them.
+    const avoidPorts = (componentId, options) => {
+      const ported = portedSidesOf(componentId);
+      const free = options.filter((side) => !ported.has(side));
+      return free.length ? free : options;
+    };
+    const fromOptions = sourcePort
+      ? [sourcePort.side]
+      : authoredFrom
+        ? [authoredFrom]
+        : avoidPorts(conn.from, [inferred.fromSide, ...SIDE_ORDER.filter((side) => side !== inferred.fromSide)]);
+    const toOptions = targetPort
+      ? [targetPort.side]
+      : authoredTo
+        ? [authoredTo]
+        : avoidPorts(conn.to, [inferred.toSide, ...SIDE_ORDER.filter((side) => side !== inferred.toSide)]);
     return fromOptions.flatMap((fromSide) => toOptions.map((toSide) => ({
       fromSide,
       toSide,
@@ -1290,7 +1340,8 @@ export function createRouter(components, connections = [], {
         for (const entry of resolvedRoutes) {
           const { conn } = entry;
           if (entry.points.length < 4 || jointlyImproved.has(conn) || typeOwned.has(conn)
-              || hasAuthoredRouteGeometry(conn) || hasAuthoredLabelPlacement(conn)) continue;
+              || hasAuthoredRouteGeometry(conn) || hasAuthoredLabelPlacement(conn)
+              || fixedEndpoint(conn, 'source') || fixedEndpoint(conn, 'target')) continue;
           const from = components.get(conn.from);
           const to = components.get(conn.to);
           const facing = from.x + from.width <= to.x ? { fromSide: 'right', toSide: 'left' }
@@ -1298,6 +1349,9 @@ export function createRouter(components, connections = [], {
               : from.y + from.height <= to.y ? { fromSide: 'bottom', toSide: 'top' }
                 : to.y + to.height <= from.y ? { fromSide: 'top', toSide: 'bottom' } : null;
           if (!facing) continue;
+          // A facing side that already carries named jacks is not free to slide.
+          if (portedSidesOf(conn.from).has(facing.fromSide)
+              || portedSidesOf(conn.to).has(facing.toSide)) continue;
           const axis = facing.fromSide === 'right' || facing.fromSide === 'left' ? 1 : 0;
           const [origin, size] = axis === 1 ? ['y', 'height'] : ['x', 'width'];
           const low = Math.max(from[origin], to[origin]) + AUTOMATIC_PORT_CORNER_GUTTER;

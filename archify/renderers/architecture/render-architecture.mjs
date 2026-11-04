@@ -2,6 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { esc, renderDefinitions, renderSemanticSigil, textUnits } from '../shared/utils.mjs';
 import { NODE_CARD_ATTR, nodeCardStyle } from '../shared/node-card-style.mjs';
+import { portSlots } from '../shared/port-layout.mjs';
 import { animateAttr, focusEdgeAttrs, focusNodeAttrs, focusNodeTitle, loadDiagramWithBrandMarks, writeDiagram, svgAccessibleText, svgRootAttrs } from '../shared/cli.mjs';
 import { componentBox, boundaryBox, connectionPath } from '../shared/layout-report.mjs';
 import { rendererFailure, throwDiagnosticProblems } from '../shared/diagnostics.mjs';
@@ -96,6 +97,17 @@ function measureComponent(c) {
 }
 
 const components = new Map(asArray(arch.components).map((c) => [c.id, measureComponent(c)]));
+// Named connector ports: measure every declared jack once, so routing and
+// rendering read the same fixed endpoint.
+const fixedPorts = new Map();
+for (const component of components.values()) {
+  const slots = portSlots(component);
+  if (!slots.size) continue;
+  fixedPorts.set(component.id, new Map([...slots].map(([id, slot]) => [
+    id,
+    { side: slot.side, point: [slot.x, slot.y] },
+  ])));
+}
 const enforcesBoundaryTitleComposition = Boolean(arch.meta?.quality_profile);
 const componentSteps = new Map();
 for (const [index, conn] of asArray(arch.connections).entries()) {
@@ -358,6 +370,7 @@ const rawBoundaries = asArray(arch.boundaries).map(boundaryRect).filter(Boolean)
 const routerOptions = {
   distinctAutomaticPorts: true,
   preferReadableRoutes: true,
+  fixedPorts,
   // A single outward stub below the scene can remove a crossing without
   // widening the canvas or shrinking its text. Fixed canvases keep their bounds.
   readabilityBottomMargin: arch.meta?.viewBox ? 0 : 24,
