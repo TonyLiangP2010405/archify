@@ -16,6 +16,7 @@ const TARGETS = [
   ['lifecycle', 'agent-run.lifecycle.json', 'lifecycle-agent-run.html'],
   ['architecture', 'web-app.architecture.json', 'web-app-rendered.html'],
   ['architecture', 'av-patch-panel.architecture.json', 'av-patch-panel-rendered.html'],
+  ['architecture', 'faceplate-patch-panel.architecture.json', 'faceplate-patch-panel-rendered.html'],
   ['erd', 'orders.erd.json', 'erd-orders-rendered.html'],
   ['erd', 'subscription-billing.erd.json', 'subscription-billing-rendered.html'],
   ['tree', 'payment-platform.tree.json', 'tree-payment-platform-rendered.html'],

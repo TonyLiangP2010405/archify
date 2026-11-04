@@ -116,6 +116,8 @@ authored ID enables a stable `#relation=<id>` viewer link that survives array
 reordering. ID-less documents remain valid and their relationship pins stay
 local to the current page.
 
+Architecture components accept an optional `faceplate` object instead of `ports`: a digest-pinned `image` (`path`, `sha256`), the image's `width`/`height`, and `ports` with `x`/`y` in 0–1 plus an optional `side`. The node box must match the image ratio; a faceplate cannot carry `sublabel`, `tag`, `icon`, `brand`, or grid layout.
+
 Architecture components accept an optional `ports` array of
 `{ "id", "label", "side": "left" | "right" }` entries, ordered as drawn, and
 architecture connections accept `fromPort` / `toPort` naming one port on their
