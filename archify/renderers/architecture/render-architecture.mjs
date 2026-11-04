@@ -680,6 +680,9 @@ function validateArchitecture() {
     }
   }
   for (const conn of asArray(arch.connections)) {
+    // An unknown endpoint is reported by the existing endpoint gate; the port
+    // checks need both boxes to resolve a side.
+    if (!components.has(conn.from) || !components.has(conn.to)) continue;
     const connectionId = conn.id || `${conn.from}->${conn.to}`;
     for (const [endpoint, componentId, portId, authoredSide] of [
       ['source', conn.from, conn.fromPort, conn.fromSide],

@@ -115,6 +115,15 @@ test('an authored side that conflicts with its port is rejected', () => {
   assert.deepEqual(codes(receipt), ['architecture/port-side-conflict']);
 });
 
+test('an unknown component endpoint is reported, not crashed', () => {
+  const { status, receipt } = validate(doc({
+    ports: [{ id: 'in-1', label: 'HDMI IN 1', side: 'left' }],
+    connections: [{ id: 'ghost', from: 'ghost', to: 'matrix' }],
+  }));
+  assert.equal(status, 1);
+  assert.ok(codes(receipt).includes('architecture/unknown-endpoint'));
+});
+
 test('empty ports behave like no ports', () => {
   const { status } = validate(doc({ ports: [] }));
   assert.equal(status, 0);
