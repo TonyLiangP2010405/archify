@@ -1376,23 +1376,34 @@ function renderPorts(c) {
   return `\n          <g data-ports="">${parts.join('')}</g>`;
 }
 
+function renderFaceplateMarks(model) {
+  const parts = [];
+  for (const port of model.ports.values()) {
+    parts.push(`<circle data-faceplate-port="" cx="${port.jack[0]}" cy="${port.jack[1]}" r="2.5" class="c-port-jack"><title>${esc(port.label)}</title></circle>`);
+    parts.push(`<line class="c-port-lead" x1="${port.jack[0]}" y1="${port.jack[1]}" x2="${port.point[0]}" y2="${port.point[1]}"/>`);
+  }
+  return `
+          <g data-faceplate-ports="">${parts.join('')}</g>`;
+}
+
 function renderComponent(c) {
   const plate = faceplateModels.get(c.id);
   const fill = componentFill[c.type] || 'c-external';
   const accent = componentText[c.type] || 't-muted';
   const rails = portRails(c);
   const contentWidth = c.width - rails.left - rails.right;
-  const cx = c.x + rails.left + contentWidth / 2;
-  const hasSub = c.sublabel != null && c.sublabel !== '';
-  const labelY = hasSub ? c.y + c.height / 2 - 2 : c.y + c.height / 2 + 4;
+  const cx = plate ? c.x + c.width / 2 : c.x + rails.left + contentWidth / 2;
+  const hasSub = !plate && c.sublabel != null && c.sublabel !== '';
+  const labelY = plate ? c.y + c.height + 10 : hasSub ? c.y + c.height / 2 - 2 : c.y + c.height / 2 + 4;
   const sub = hasSub
     ? `\n        <text data-detail="context" x="${cx}" y="${c.y + c.height / 2 + 14}" class="t-muted" font-size="${fittedNodeFontSize(c.sublabel, contentWidth, componentTextFit.sublabelPreferred, componentTextFit.sublabelMinimum)}" text-anchor="middle">${esc(c.sublabel)}</text>`
     : '';
-  const tag = c.tag
+  const tag = !plate && c.tag
     ? `\n        <text data-detail="fine" x="${cx}" y="${c.y + c.height - 8}" class="${accent}" font-size="${fittedNodeFontSize(c.tag, contentWidth, componentTextFit.tagPreferred, componentTextFit.tagMinimum)}" text-anchor="middle">${esc(c.tag)}</text>`
     : '';
-  const brand = renderBrandMark(c, { x: c.x + c.width - 22, y: c.y + 6 });
-  const labelFontSize = fittedNodeFontSize(c.label, Math.min(brandLabelFitWidth(c, c.width), contentWidth), 11, 8);
+  const brand = plate ? '' : renderBrandMark(c, { x: c.x + c.width - 22, y: c.y + 6 });
+  const labelFontSize = fittedNodeFontSize(c.label,
+    plate ? c.width : Math.min(brandLabelFitWidth(c, c.width), contentWidth), 11, 8);
   const passport = { kind: c.type, sublabel: c.sublabel, tag: c.tag, context: componentContext(c), ...brandMetadataFor(c) };
   return `        <g ${focusNodeAttrs(c.id, c.label, passport, arch.meta.locale)}>
           ${focusNodeTitle(c.label, passport)}
@@ -1400,7 +1411,7 @@ function renderComponent(c) {
           ${plate
             ? `<image href="${esc(plate.image.dataUrl)}" x="${c.x}" y="${c.y}" width="${c.width}" height="${c.height}" preserveAspectRatio="none"/><rect x="${c.x}" y="${c.y}" width="${c.width}" height="${c.height}" rx="0" class="${fill}" style="fill:none" stroke-width="1.5"/>`
             : `<rect x="${c.x}" y="${c.y}" width="${c.width}" height="${c.height}" rx="8" class="${fill}"${animateAttr(arch.meta, 'node', componentSteps.get(c.id))} stroke-width="1.5"/>`}
-          ${renderSemanticSigil(c.type, { icon: c.icon, x: c.x + 6, y: c.y + 6 })}${brand ? `\n          ${brand}` : ''}${renderPorts(c)}
+          ${plate ? '' : renderSemanticSigil(c.type, { icon: c.icon, x: c.x + 6, y: c.y + 6 })}${brand ? `\n          ${brand}` : ''}${plate ? renderFaceplateMarks(plate) : renderPorts(c)}
           <text data-node-label=""${hasSub ? ' data-detail-anchor=""' : ''} x="${cx}" y="${labelY}" class="t-primary" font-size="${labelFontSize}" font-weight="600" text-anchor="middle">${esc(c.label)}</text>${sub}${tag}
         </g>`;
 }

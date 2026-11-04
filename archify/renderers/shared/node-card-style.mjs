@@ -27,6 +27,7 @@ ${TONES.map((tone) => `          ${dark} ${node}.c-${tone} { fill: color-mix(in 
           ${all} .phase-chip { stroke: var(--lane-stroke); stroke-width: .75px; }
           ${all} ${edgeLabel} { rx: 7px; stroke: var(--lane-stroke); stroke-width: .75px; }${portJacks ? `
           ${all} .c-port-jack { fill: var(--mask); stroke: var(--lane-stroke); stroke-width: .8px; }
+          ${all} .c-port-lead { stroke: var(--lane-stroke); stroke-width: .8px; opacity: .55; }
           ${blueprint} .c-port-jack { rx: 1px; }` : ''}
           ${blueprint} :is(${frameLabel}, ${edgeLabel}, .phase-chip) { rx: 2px; }
           ${editorial} :is(${frameLabel}, ${edgeLabel}, .phase-chip) { rx: 3px; }
