@@ -112,6 +112,41 @@
                 "side": { "enum": ["left", "right"] }
               }
             }
+          },
+          "faceplate": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["image", "width", "height", "ports"],
+            "properties": {
+              "image": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["path", "sha256"],
+                "properties": {
+                  "path": { "type": "string", "minLength": 1, "maxLength": 1024 },
+                  "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+                }
+              },
+              "width": { "type": "number", "exclusiveMinimum": 0 },
+              "height": { "type": "number", "exclusiveMinimum": 0 },
+              "ports": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 64,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["id", "label", "x", "y"],
+                  "properties": {
+                    "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]{0,31}$" },
+                    "label": { "type": "string", "minLength": 1, "maxLength": 40 },
+                    "x": { "type": "number", "minimum": 0, "maximum": 1 },
+                    "y": { "type": "number", "minimum": 0, "maximum": 1 },
+                    "side": { "$ref": "common.schema.json#/$defs/side" }
+                  }
+                }
+              }
+            }
           }
         }
       }
