@@ -113,8 +113,10 @@ for (const component of components.values()) {
   ])));
 }
 // ---- Faceplate nodes --------------------------------------------------------
-// A faceplate is one image plus holes at 0-1 coordinates. The hole's lead ends
-// on the nearest box edge in pixels, and that edge point is the route endpoint.
+// A faceplate is one image plus holes at 0-1 coordinates. The hole's exit sits
+// on the nearest box edge in pixels and that edge point is the route endpoint;
+// the cable's final stretch from the exit into the jack is drawn above the image
+// by renderPortStubs, so every cable visibly ends on the hole.
 const FACEPLATE_EDGES = ['top', 'right', 'bottom', 'left'];
 
 function faceplateEdge(side, port, box) {
@@ -1466,11 +1468,43 @@ function renderConnectionPath(conn, index) {
     : '';
   const crossover = automaticRoute
     ? ` data-composition-crossover="halo"${conn.labelAt ? '' : ' data-composition-independent="true"'}` : '';
-  const edge = `        <path ${focusEdgeAttrs(conn.from, conn.to, conn.label, index, conn.id)} data-composition-points="${routePointsValue(routed.points)}"${crossover}${authoredStraightRouteAttrs(conn, routed.points)} d="${routed.d}" class="${cls}"${animateAttr(arch.meta, 'edge', index)} stroke-width="${strokeWidth}" marker-end="url(#${marker})"/>`;
+  // A faceplate hole owns its arrowhead: the stub drawn above the panel image
+  // carries it, so the cable ends visibly on the jack instead of the border.
+  const head = faceplatePortEntry(conn.to, conn.toPort) ? '' : ` marker-end="url(#${marker})"`;
+  const edge = `        <path ${focusEdgeAttrs(conn.from, conn.to, conn.label, index, conn.id)} data-composition-points="${routePointsValue(routed.points)}"${crossover}${authoredStraightRouteAttrs(conn, routed.points)} d="${routed.d}" class="${cls}"${animateAttr(arch.meta, 'edge', index)} stroke-width="${strokeWidth}"${head}/>`;
   if (!automaticRoute) return edge;
   // The wrapper is presentation-only: viewer state remains on the one semantic
   // edge, while CSS can keep its preceding mask underlay at the same opacity.
   return `        <g data-graph-role="automatic-crossover" style="--step:${index}">\n${underlay}${edge.replace(/^        /, '          ')}\n        </g>`;
+}
+
+function faceplatePortEntry(componentId, portId) {
+  if (!portId) return null;
+  return faceplateModels.get(componentId)?.ports.get(portId) || null;
+}
+
+// A faceplate cable finishes inside the node box, where the panel image paints
+// over it. Redraw that last stretch above the image so the cable runs into the
+// hole and any arrowhead lands on the jack.
+function renderPortStubs() {
+  const parts = [];
+  for (const conn of asArray(arch.connections)) {
+    const [cls, marker] = arrowClassMap[conn.variant || 'default'] || arrowClassMap.default;
+    const strokeWidth = conn.width || (conn.variant === 'emphasis' ? 1.8 : 1.5);
+    for (const endpoint of ['from', 'to']) {
+      const port = faceplatePortEntry(
+        endpoint === 'from' ? conn.from : conn.to,
+        endpoint === 'from' ? conn.fromPort : conn.toPort,
+      );
+      if (!port) continue;
+      const [exitX, exitY] = port.point;
+      const [jackX, jackY] = port.jack;
+      if (Math.abs(exitX - jackX) < 0.01 && Math.abs(exitY - jackY) < 0.01) continue;
+      const head = endpoint === 'to' ? ` marker-end="url(#${marker})"` : '';
+      parts.push(`          <line data-port-stub="${esc(conn.id)}" x1="${exitX}" y1="${exitY}" x2="${jackX}" y2="${jackY}" class="${cls}" stroke-width="${strokeWidth}"${head} pointer-events="none"/>`);
+    }
+  }
+  return parts.length ? `        <g data-port-stubs="">\n${parts.join('\n')}\n        </g>` : '';
 }
 
 function renderConnectionLabel(conn, index) {
@@ -1499,9 +1533,10 @@ function renderPorts(c) {
 
 function renderFaceplateMarks(model) {
   const parts = [];
+  // The panel image is painted above the cables, so a cable's last stretch into
+  // the jack is drawn by renderPortStubs, not by the route itself.
   for (const port of model.ports.values()) {
-    parts.push(`<circle data-faceplate-port="" cx="${port.jack[0]}" cy="${port.jack[1]}" r="2.5" class="c-port-jack"><title>${esc(port.label)}</title></circle>`);
-    parts.push(`<line class="c-port-lead" x1="${port.jack[0]}" y1="${port.jack[1]}" x2="${port.point[0]}" y2="${port.point[1]}"/>`);
+    parts.push(`<circle data-faceplate-port="" data-faceplate-exit="${port.point[0]},${port.point[1]}" cx="${port.jack[0]}" cy="${port.jack[1]}" r="2.5" class="c-port-jack"><title>${esc(port.label)}</title></circle>`);
   }
   return `
           <g data-faceplate-ports="">${parts.join('')}</g>`;
@@ -1597,6 +1632,9 @@ ${asArray(arch.connections).map(renderConnectionPath).join('\n')}
 
         <!-- Components -->
 ${[...components.values()].map(renderComponent).join('\n\n')}
+
+        <!-- Cables entering a faceplate hole (above the panel image) -->
+${renderPortStubs()}
 
         <!-- Connection labels -->
 ${asArray(arch.connections).map(renderConnectionLabel).join('\n')}

@@ -103,9 +103,56 @@ test('twelve holes on one side get twelve distinct exit points', () => {
     path.join(dir, 'many.json'), path.join(dir, 'many.html')], { encoding: 'utf8' });
   assert.equal(render.status, 0, render.stderr.slice(0, 300));
   const html = fs.readFileSync(path.join(dir, 'many.html'), 'utf8');
-  const ys = [...html.matchAll(/<line class="c-port-lead"[^>]*y2="([^"]+)"/g)].map((m) => Number(m[1]));
+  const ys = [...html.matchAll(/data-faceplate-exit="[^"]*?,([^"]+)"/g)].map((m) => Number(m[1]));
   assert.equal(ys.length, 12);
   assert.equal(new Set(ys).size, 12, `duplicate exits: ${ys.join(',')}`);
+});
+
+test('a cable ends on the hole, not on the panel border', () => {
+  const dir = workspace();
+  const wired = doc({
+    components: [
+      ...doc().components,
+      { id: 'rx', type: 'external', label: 'RX', pos: [400, 340], size: [120, 60] },
+    ],
+    connections: [{ id: 'into-hole', from: 'rx', to: 'tx', toPort: 'in-1' }],
+  });
+  fs.writeFileSync(path.join(dir, 'wired.json'), JSON.stringify(wired));
+  const render = spawnSync(process.execPath, [path.join(skillRoot, 'renderers/architecture/render-architecture.mjs'),
+    path.join(dir, 'wired.json'), path.join(dir, 'wired.html')], { encoding: 'utf8' });
+  assert.equal(render.status, 0, render.stderr.slice(0, 300));
+  const html = fs.readFileSync(path.join(dir, 'wired.html'), 'utf8');
+
+  // The route still stops on the panel edge; the stub carries it into the jack.
+  const stub = html.match(/<line data-port-stub="into-hole"[^>]*>/);
+  assert.ok(stub, 'missing the stub that reaches the hole');
+  assert.match(stub[0], /x1="250" y1="250"/);
+  assert.match(stub[0], /x2="250" y2="229"/);
+  assert.match(stub[0], /marker-end="url\(#arrowhead\)"/);
+
+  const route = html.match(/data-edge-id="into-hole"[^>]*>/);
+  assert.ok(route, 'missing the route');
+  assert.doesNotMatch(route[0], /marker-end/, 'the border must not draw a second arrowhead');
+});
+
+test('a cable leaving a hole keeps its arrowhead on the far end', () => {
+  const dir = workspace();
+  const wired = doc({
+    components: [
+      ...doc().components,
+      { id: 'rx', type: 'external', label: 'RX', pos: [400, 340], size: [120, 60] },
+    ],
+    connections: [{ id: 'out-of-hole', from: 'tx', to: 'rx', fromPort: 'in-1' }],
+  });
+  fs.writeFileSync(path.join(dir, 'out.json'), JSON.stringify(wired));
+  const render = spawnSync(process.execPath, [path.join(skillRoot, 'renderers/architecture/render-architecture.mjs'),
+    path.join(dir, 'out.json'), path.join(dir, 'out.html')], { encoding: 'utf8' });
+  assert.equal(render.status, 0, render.stderr.slice(0, 300));
+  const html = fs.readFileSync(path.join(dir, 'out.html'), 'utf8');
+  const stub = html.match(/<line data-port-stub="out-of-hole"[^>]*>/);
+  assert.ok(stub, 'missing the stub that leaves the hole');
+  assert.doesNotMatch(stub[0], /marker-end/);
+  assert.match(html.match(/data-edge-id="out-of-hole"[^>]*>/)[0], /marker-end="url\(#arrowhead\)"/);
 });
 
 test('duplicate hole ids are rejected, not silently merged', () => {

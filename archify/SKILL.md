@@ -70,7 +70,7 @@ Before the first candidate, use the authoring references and relevant repository
 | `timeline` | When things happened: incident reviews, release histories, timestamped events on a proportional clock with source lanes | `schemas/timeline.schema.json` | `examples/payment-incident.timeline.json` |
 | `waterfall` | Where the time went: span durations, overlap, and nesting of one request or agent run on a common time axis | `schemas/waterfall.schema.json` | `examples/checkout-request.waterfall.json` |
 
-For AV-style wiring, an Architecture component may declare named `ports` and a connection may name `fromPort` / `toPort`; read [Authoring defaults](references/authoring-defaults.md) for the capacity budget and the left/right limit. For a real device panel, `components[].faceplate` puts a digest-pinned PNG/JPEG image in the node and places holes at 0–1 coordinates with a lead to the nearest edge; see Authoring defaults for the ratio and the caption rule.
+For AV-style wiring, an Architecture component may declare named `ports` and a connection may name `fromPort` / `toPort`; read [Authoring defaults](references/authoring-defaults.md) for the capacity budget and the left/right limit. For a real device panel, `components[].faceplate` puts a digest-pinned PNG/JPEG image in the node and places holes at 0–1 coordinates; each cable runs into its hole; see Authoring defaults for the ratio and the caption rule.
 
 When choosing among native diagram types is ambiguous, run `node bin/archify.mjs guide "<scenario>" --json`. Scenario proof examples are structural references, not facts to copy.
 
