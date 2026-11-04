@@ -58,6 +58,26 @@ https://github.com/user-attachments/assets/88cff7dd-bdf3-4b97-950c-37cc079898b1
 
 ### 安装，然后说出你的想法
 
+> **这是 `TonyLiangP2010405/archify` 分支版**：在上游 3.2.0 上增加了「真实产品面板」能力——面板图 + 孔位，每条线都画进对应的孔，并提供命名端口（`ports`、`fromPort` / `toPort`）。`main` 与 `feat/architecture-ports` 指向同一提交；从 `tt-a1i/archify` 安装不含这些提交。
+>
+> ```bash
+> curl -L -o archify.zip https://github.com/TonyLiangP2010405/archify/raw/main/archify.zip
+> unzip -o archify.zip -d ~/.agents/skills
+> ```
+>
+> 如果本机连不上 `github.com`，用 API 端点下载同一个包：`gh api "repos/TonyLiangP2010405/archify/contents/archify.zip?ref=main" -H "Accept: application/vnd.github.raw" > archify.zip`，再解压。
+>
+> 也可以直接把这段发给 Agent：
+>
+> ```text
+> 从 https://github.com/TonyLiangP2010405/archify 安装 Archify：下载
+> https://github.com/TonyLiangP2010405/archify/raw/main/archify.zip，解压到 ~/.agents/skills，
+> 运行 `node ~/.agents/skills/archify/bin/archify.mjs doctor`，
+> 并确认 `grep -c renderPortStubs ~/.agents/skills/archify/renderers/architecture/render-architecture.mjs` 输出 4。
+> ```
+>
+> 带真实产品照片的私有设备库不在本仓库中。
+
 支持 Cursor、Claude Code、Codex CLI 和 OpenCode；更多接入方式见下方安装选项。
 
 ```text
