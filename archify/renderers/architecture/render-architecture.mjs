@@ -3,7 +3,8 @@ import { fileURLToPath } from 'node:url';
 import { esc, renderDefinitions, renderSemanticSigil, textUnits } from '../shared/utils.mjs';
 import { NODE_CARD_ATTR, nodeCardStyle } from '../shared/node-card-style.mjs';
 import {
-  PORT_JACK_HEIGHT, PORT_JACK_WIDTH, PORT_LABEL_FONT_PX, portRails, portSlots,
+  componentPorts, PORT_JACK_HEIGHT, PORT_JACK_WIDTH, PORT_LABEL_FONT_PX,
+  portCapacity, portRailCrowding, portRails, portSlots,
 } from '../shared/port-layout.mjs';
 import { animateAttr, focusEdgeAttrs, focusNodeAttrs, focusNodeTitle, loadDiagramWithBrandMarks, writeDiagram, svgAccessibleText, svgRootAttrs } from '../shared/cli.mjs';
 import { componentBox, boundaryBox, connectionPath } from '../shared/layout-report.mjs';
@@ -622,6 +623,140 @@ function validateArchitecture() {
     }
   }
 
+  // Named connector ports — structural truth, not layout taste.
+  const portUse = new Map();
+  for (const c of components.values()) {
+    const seen = new Set();
+    for (const port of componentPorts(c)) {
+      if (seen.has(port.id)) {
+        const message = `Component "${c.id}" declares port "${port.id}" more than once — every port id must be unique on its component.`;
+        diagnostics.push({
+          code: 'architecture/duplicate-port-id', severity: 'error', message,
+          subject: { diagramType: 'architecture', nodeId: c.id, portId: port.id },
+          evidence: { portId: port.id },
+          supportedFixes: [`rename one of the "${port.id}" ports on component "${c.id}"`],
+        });
+        problems.push(message);
+      }
+      seen.add(port.id);
+    }
+    for (const capacity of portCapacity(c)) {
+      if (capacity.ok) continue;
+      const message = `Component "${c.id}" needs ${capacity.requiredPx}px for ${capacity.count} ${capacity.side} ports, but its card is ${capacity.availablePx}px tall — jacks sit at least 14px apart.`;
+      diagnostics.push({
+        code: 'architecture/port-capacity', severity: 'error', message,
+        subject: { diagramType: 'architecture', nodeId: c.id, side: capacity.side },
+        evidence: {
+          count: capacity.count,
+          requiredPx: capacity.requiredPx,
+          availablePx: capacity.availablePx,
+        },
+        supportedFixes: [
+          `increase component "${c.id}" height to at least ${capacity.requiredPx}px`,
+          `move some ${capacity.side} ports to the other side of "${c.id}"`,
+          `remove ports that are not needed`,
+        ],
+      });
+      problems.push(message);
+    }
+    const crowding = portRailCrowding(c);
+    if (crowding) {
+      const message = `Port labels on component "${c.id}" need ${crowding.requiredWidthPx}px of card width, but it is ${crowding.availableWidthPx}px wide — the rails leave no room for "${c.label}".`;
+      diagnostics.push({
+        code: 'architecture/port-rail-crowded', severity: 'error', message,
+        subject: { diagramType: 'architecture', nodeId: c.id },
+        evidence: {
+          requiredWidthPx: crowding.requiredWidthPx,
+          availableWidthPx: crowding.availableWidthPx,
+          leftRailPx: portRails(c).left,
+          rightRailPx: portRails(c).right,
+        },
+        supportedFixes: [
+          `widen component "${c.id}" to at least ${crowding.requiredWidthPx}px`,
+          `shorten its port labels`,
+        ],
+      });
+      problems.push(message);
+    }
+  }
+  for (const conn of asArray(arch.connections)) {
+    const connectionId = conn.id || `${conn.from}->${conn.to}`;
+    for (const [endpoint, componentId, portId, authoredSide] of [
+      ['source', conn.from, conn.fromPort, conn.fromSide],
+      ['target', conn.to, conn.toPort, conn.toSide],
+    ]) {
+      const component = components.get(componentId);
+      if (!component) continue;
+      const ports = componentPorts(component);
+      if (!portId) {
+        const side = connectionEndpointSide(conn, endpoint);
+        if (!ports.some((port) => port.side === side)) continue;
+        const message = `Connection "${connectionId}" enters the ${side} side of "${componentId}", which carries named ports — declare a port or use another side.`;
+        diagnostics.push({
+          code: 'architecture/port-side-exclusive', severity: 'error', message,
+          subject: { diagramType: 'architecture', nodeId: componentId, side, connectionId },
+          evidence: { declaredPorts: ports.filter((port) => port.side === side).map((port) => port.id) },
+          supportedFixes: [
+            `declared a ${side} port on connection "${connectionId}"`,
+            `set ${endpoint === 'source' ? 'fromSide' : 'toSide'} to a side without ports`,
+            `move connection "${connectionId}" to another side of "${componentId}"`,
+          ],
+        });
+        problems.push(message);
+        continue;
+      }
+      const port = ports.find((candidate) => candidate.id === portId);
+      if (!port) {
+        const message = `Connection "${connectionId}" names port "${portId}" on component "${componentId}", which does not declare it.`;
+        diagnostics.push({
+          code: 'architecture/unknown-port', severity: 'error', message,
+          subject: { diagramType: 'architecture', nodeId: componentId, portId, connectionId },
+          evidence: {
+            endpoint,
+            availablePorts: ports.map((candidate) => candidate.id),
+          },
+          supportedFixes: [
+            `use one of: ${ports.map((candidate) => candidate.id).join(', ') || '(none declared)'}`,
+            `declare port "${portId}" on component "${componentId}"`,
+          ],
+        });
+        problems.push(message);
+        continue;
+      }
+      if (authoredSide && authoredSide !== 'auto' && authoredSide !== port.side) {
+        const message = `Connection "${connectionId}" sets ${endpoint === 'source' ? 'fromSide' : 'toSide'} "${authoredSide}" while port "${portId}" sits on the ${port.side} side.`;
+        diagnostics.push({
+          code: 'architecture/port-side-conflict', severity: 'error', message,
+          subject: { diagramType: 'architecture', nodeId: componentId, portId, connectionId },
+          evidence: { authoredSide, portSide: port.side },
+          supportedFixes: [
+            `remove ${endpoint === 'source' ? 'fromSide' : 'toSide'} from connection "${connectionId}"`,
+            `move port "${portId}" to the ${authoredSide} side`,
+          ],
+        });
+        problems.push(message);
+        continue;
+      }
+      const key = `${componentId}\u0000${portId}`;
+      const first = portUse.get(key);
+      if (first && first !== connectionId) {
+        const message = `Port "${portId}" on "${componentId}" already carries connection "${first}" — a jack takes one cable.`;
+        diagnostics.push({
+          code: 'architecture/port-duplicate-use', severity: 'error', message,
+          subject: { diagramType: 'architecture', nodeId: componentId, portId, connectionId },
+          evidence: { firstConnectionId: first },
+          supportedFixes: [
+            `move "${connectionId}" to another port on "${componentId}"`,
+            `remove the duplicate connection`,
+          ],
+        });
+        problems.push(message);
+      } else {
+        portUse.set(key, connectionId);
+      }
+    }
+  }
+
   // Component overlap — the highest-traffic hand-placement failure mode.
   const list = [...components.values()];
   for (let i = 0; i < list.length; i += 1) {
@@ -871,8 +1006,20 @@ function validateArchitecture() {
     }
   }
 
+  // A connection whose authored side contradicts its named port is reported as
+  // architecture/port-side-conflict; the side-direction check would repeat it.
+  const portSideConflict = (relation) => [
+    [relation.from, relation.fromPort, relation.fromSide],
+    [relation.to, relation.toPort, relation.toSide],
+  ].some(([componentId, portId, side]) => {
+    if (!portId || !side || side === 'auto') return false;
+    const port = componentPorts(components.get(componentId)).find((candidate) => candidate.id === portId);
+    return Boolean(port && port.side !== side);
+  });
+
   problems.push(...cleanEndpointSideProblems({
     relations: arch.connections,
+    shouldCheckRelation: (relation) => !portSideConflict(relation),
     endpointIds: new Set(components.keys()),
     pathFor,
     diagramType: 'architecture',
