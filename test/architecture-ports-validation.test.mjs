@@ -96,7 +96,7 @@ test('a crowded rail reports the width the card needs', () => {
     ],
   }));
   const entry = receipt.diagnostics.find((item) => item.code === 'architecture/port-rail-crowded');
-  assert.equal(entry.evidence.requiredWidthPx, 141);
+  assert.equal(entry.evidence.requiredWidthPx, 164);
 });
 
 test('a portless connection on an authored ported side is rejected', () => {

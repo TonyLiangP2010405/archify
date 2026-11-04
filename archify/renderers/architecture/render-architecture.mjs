@@ -1255,7 +1255,7 @@ function renderPorts(c) {
     const textX = slot.side === 'left' ? c.x + 8 : c.x + c.width - 8;
     const anchor = slot.side === 'left' ? 'start' : 'end';
     parts.push(`<rect class="c-port-jack" x="${jackX}" y="${jackY}" width="${PORT_JACK_WIDTH}" height="${PORT_JACK_HEIGHT}" rx="1.5"/>`);
-    parts.push(`<text data-detail="fine" x="${textX}" y="${slot.y + 2}" class="t-muted" font-size="${PORT_LABEL_FONT_PX}" text-anchor="${anchor}">${esc(slot.label)}</text>`);
+    parts.push(`<text data-detail="context" x="${textX}" y="${slot.y + 3}" class="t-muted" font-size="${PORT_LABEL_FONT_PX}" text-anchor="${anchor}">${esc(slot.label)}</text>`);
   }
   return `\n          <g data-ports="">${parts.join('')}</g>`;
 }

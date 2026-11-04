@@ -38,12 +38,12 @@ test('rails reserve the widest label per side and count CJK as two units', () =>
     { id: 'in-1', label: 'HDMI IN 1', side: 'left' },
     { id: 'out-1', label: 'HDMI OUT 1', side: 'right' },
   ]);
-  assert.equal(portRailWidth(c, 'left'), Math.ceil(9 * 3.6) + 10);
-  assert.equal(portRailWidth(c, 'right'), Math.ceil(10 * 3.6) + 10);
-  assert.deepEqual(portRails(c), { left: 43, right: 46 });
+  assert.equal(portRailWidth(c, 'left'), Math.ceil(9 * 4.8) + 10);
+  assert.equal(portRailWidth(c, 'right'), Math.ceil(10 * 4.8) + 10);
+  assert.deepEqual(portRails(c), { left: 54, right: 58 });
 
   const cjk = box(0, 200, [{ id: 'in-1', label: '高清输入 1', side: 'left' }], 300);
-  assert.equal(portRailWidth(cjk, 'left'), Math.ceil(10 * 3.6) + 10);
+  assert.equal(portRailWidth(cjk, 'left'), Math.ceil(10 * 4.8) + 10);
 });
 
 test('rail crowding reports the width a card needs', () => {
@@ -51,7 +51,7 @@ test('rail crowding reports the width a card needs', () => {
     { id: 'in-1', label: 'HDMI IN 1', side: 'left' },
     { id: 'out-1', label: 'HDMI OUT 1', side: 'right' },
   ], 120);
-  assert.deepEqual(portRailCrowding(cramped), { requiredWidthPx: 141, availableWidthPx: 120 });
+  assert.deepEqual(portRailCrowding(cramped), { requiredWidthPx: 164, availableWidthPx: 120 });
 });
 
 test('no ports means no slots and no rails', () => {

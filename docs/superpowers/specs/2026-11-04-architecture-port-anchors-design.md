@@ -139,7 +139,7 @@ portCapacity(component) -> [{ side, count, requiredPx, availablePx, ok }]
 
 端口名轨（rail）宽度：
 
-- `rail = ceil(textUnits(label) * 3.6) + 10`，字体 6px（`data-detail="fine"`，与 tag 同档，不参与可读性下限统计）。
+- `rail = ceil(textUnits(label) * 4.8) + 10`，字体 8px，`data-detail="context"`——端口名是这张图的主信息，必须在默认阅读档位可见（6px 的 fine 档会被 Viewer 隐藏，实测截图确认过）。
 - 卡片正文（label/sublabel/tag）居中于 `c.width - leftRail - rightRail` 的剩余带宽内。
 - 两条边的 rail 之和超过卡片宽度的一半时，报 `architecture/port-rail-crowded`，并给出“加宽到 N px”或“缩短端口名”的修法。
 

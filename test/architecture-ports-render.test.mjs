@@ -44,7 +44,7 @@ test('every declared port draws one jack and one fine label', () => {
   assert.equal((html.match(/<g data-ports="">/g) || []).length, 1);
   assert.equal((html.match(/class="c-port-jack"/g) || []).length, 3);
   for (const port of PORTS) {
-    assert.match(html, new RegExp(`<text data-detail="fine"[^>]*>${port.label}</text>`));
+    assert.match(html, new RegExp(`<text data-detail="context"[^>]*>${port.label}</text>`));
   }
 });
 
