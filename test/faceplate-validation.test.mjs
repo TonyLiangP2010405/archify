@@ -41,6 +41,35 @@ function validate(mutate) {
 
 const codes = (receipt) => (receipt.diagnostics || []).map((entry) => entry.code);
 
+const PHOTO = fs.readFileSync(path.join(skillRoot, 'examples/assets/patch-panel.png'));
+const photoSha = createHash('sha256').update(PHOTO).digest('hex');
+
+function validatePhoto(mutate) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'archify-faceplate-photo-'));
+  fs.mkdirSync(path.join(dir, 'faces'));
+  fs.writeFileSync(path.join(dir, 'faces', 'panel.png'), PHOTO);
+  const doc = {
+    schema_version: 1,
+    diagram_type: 'architecture',
+    meta: { title: 'Faceplate photo scale', output: 'diag.html', quality_profile: 'showcase' },
+    components: [{
+      id: 'tx', type: 'backend', label: 'TX', pos: [40, 40], size: [280, 52.5],
+      faceplate: {
+        image: { path: 'faces/panel.png', sha256: photoSha }, width: 640, height: 120,
+        ports: [{ id: 'in-1', label: 'IN 1', x: 0.5, y: 0.5 }],
+      },
+    }],
+    connections: [],
+  };
+  mutate(doc);
+  const input = path.join(dir, 'diagram.json');
+  fs.writeFileSync(input, JSON.stringify(doc));
+  const result = spawnSync(process.execPath, [cli, 'validate', 'architecture', input, '--json'], { encoding: 'utf8' });
+  const receipt = JSON.parse(result.stdout);
+  fs.rmSync(dir, { recursive: true, force: true });
+  return { status: result.status, receipt };
+}
+
 test('a wrong digest is reported before rendering', () => {
   const { status, receipt } = validate((doc) => { doc.components[0].faceplate.image.sha256 = '0'.repeat(64); });
   assert.equal(status, 1);
@@ -56,6 +85,29 @@ test('an aspect-locked node must match the image ratio', () => {
   const { receipt } = validate((doc) => { doc.components[0].size = [420, 300]; });
   const entry = receipt.diagnostics.find((item) => item.code === 'architecture/faceplate-aspect');
   assert.equal(entry.evidence.requiredHeightPx, 210);
+});
+
+test('a photographed panel drawn too small to read its silkscreen is rejected', () => {
+  const { status, receipt } = validatePhoto((doc) => { doc.components[0].size = [280, 52.5]; });
+  assert.equal(status, 1);
+  const entry = receipt.diagnostics.find((item) => item.code === 'architecture/faceplate-too-small');
+  assert.equal(entry.evidence.sourceWidth, 640);
+  assert.equal(entry.evidence.minWidth, 288);
+});
+
+test('a photographed panel at a readable scale passes', () => {
+  const { status, receipt } = validatePhoto((doc) => { doc.components[0].size = [400, 75]; });
+  assert.equal(status, 0);
+  assert.ok(!codes(receipt).includes('architecture/faceplate-too-small'));
+});
+
+test('a standard-profile draft keeps its narrow panel', () => {
+  const { status, receipt } = validatePhoto((doc) => {
+    doc.meta.quality_profile = 'standard';
+    doc.components[0].size = [280, 52.5];
+  });
+  assert.equal(status, 0, 'the readable-scale gate belongs to the showcase profile');
+  assert.ok(!codes(receipt).includes('architecture/faceplate-too-small'));
 });
 
 test('two holes at the same jack position are rejected', () => {

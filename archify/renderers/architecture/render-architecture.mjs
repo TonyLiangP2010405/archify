@@ -119,6 +119,11 @@ for (const component of components.values()) {
 // the cable's final stretch from the exit into the jack is drawn above the image
 // by renderPortStubs, so every cable visibly ends on the hole.
 const FACEPLATE_EDGES = ['top', 'right', 'bottom', 'left'];
+// A photographed panel's printed silkscreen is a fixed fraction of the image,
+// so a faceplate drawn far below its source width renders jack names unreadably.
+// Synthetic test strips (a couple of pixels wide) are exempt.
+const FACEPLATE_MIN_RENDERED_SCALE = 0.45;
+const FACEPLATE_PHOTO_MIN_SOURCE_PX = 240;
 
 function faceplateEdge(side, port, box) {
   switch (side) {
@@ -805,6 +810,24 @@ function validateArchitecture() {
         subject: { diagramType: 'architecture', nodeId: c.id },
         evidence: { width: c.width, height: c.height, requiredHeightPx },
         supportedFixes: [`set component "${c.id}" height to ${requiredHeightPx}`],
+      });
+      problems.push(message);
+    }
+    const sourceWidth = c.faceplate.width;
+    const renderedScale = sourceWidth ? c.width / sourceWidth : 1;
+    if ((process.env.ARCHIFY_QUALITY_PROFILE || arch.meta?.quality_profile) === 'showcase'
+      && sourceWidth >= FACEPLATE_PHOTO_MIN_SOURCE_PX
+      && renderedScale < FACEPLATE_MIN_RENDERED_SCALE) {
+      const minWidth = Math.ceil(sourceWidth * FACEPLATE_MIN_RENDERED_SCALE);
+      const message = `Faceplate "${c.id}" draws its ${sourceWidth}px panel at ${Math.round(renderedScale * 100)}% (${Math.round(c.width)}px), which makes the printed silkscreen unreadable; widen it to at least ${minWidth}px.`;
+      diagnostics.push({
+        code: 'architecture/faceplate-too-small', severity: 'error', message,
+        subject: { diagramType: 'architecture', nodeId: c.id },
+        evidence: { width: Math.round(c.width), sourceWidth, renderedScale: Math.round(renderedScale * 1000) / 1000, minWidth },
+        supportedFixes: [
+          `widen component "${c.id}" to at least ${minWidth}px`,
+          '760–820px keeps a photographed panel legible in the delivered diagram',
+        ],
       });
       problems.push(message);
     }
