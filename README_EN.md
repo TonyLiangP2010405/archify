@@ -58,6 +58,27 @@ https://github.com/user-attachments/assets/78570807-ba1d-4737-953f-55504a378a87
 
 ### Install, then describe your idea
 
+> **This fork — `TonyLiangP2010405/archify`.** On top of upstream 3.2.0 it adds real-product faceplates to Architecture diagrams: a digest-pinned panel photo with holes, each cable drawn into its hole, plus named connector ports (`ports`, `fromPort` / `toPort`). `main` and `feat/architecture-ports` point at the same commit; installs from `tt-a1i/archify` do not include these commits.
+>
+> ```bash
+> curl -L -o archify.zip https://github.com/TonyLiangP2010405/archify/raw/main/archify.zip
+> unzip -o archify.zip -d ~/.agents/skills
+> ```
+>
+> If `github.com` is unreachable on your network, fetch the same archive through the API — `gh api "repos/TonyLiangP2010405/archify/contents/archify.zip?ref=main" -H "Accept: application/vnd.github.raw" > archify.zip` — then extract it.
+>
+> Or send this to your agent:
+>
+> ```text
+> Install Archify from https://github.com/TonyLiangP2010405/archify: download
+> https://github.com/TonyLiangP2010405/archify/raw/main/archify.zip, extract it into
+> ~/.agents/skills, run `node ~/.agents/skills/archify/bin/archify.mjs doctor`, and
+> confirm `grep -c renderPortStubs
+> ~/.agents/skills/archify/renderers/architecture/render-architecture.mjs` prints 4.
+> ```
+>
+> The private device library with real panel photos is not part of this repository.
+
 Works with Cursor, Claude Code, Codex CLI, and OpenCode. See installation options below for additional integrations.
 
 ```text

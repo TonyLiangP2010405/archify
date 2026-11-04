@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Meeting room signal path",
+    "output": "av-room-pictograms.html",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    { "id": "laptop", "type": "external", "label": "Laptop", "pictogram": "laptop", "pos": [120, 120], "size": [120, 80] },
+    { "id": "room-pc", "type": "external", "label": "Room PC", "pictogram": "pc", "pos": [120, 300], "size": [120, 80] },
+    { "id": "sw", "type": "backend", "label": "AV Switch", "pictogram": "network-switch", "pos": [420, 200], "size": [180, 120] },
+    { "id": "display", "type": "external", "label": "Display", "pictogram": "display", "pos": [800, 120], "size": [120, 80] },
+    { "id": "camera", "type": "external", "label": "PTZ Camera", "pictogram": "ptz-camera", "pos": [800, 320], "size": [120, 80] }
+  ],
+  "connections": [
+    { "id": "laptop-to-sw", "from": "laptop", "to": "sw", "label": "HDMI" },
+    { "id": "pc-to-sw", "from": "room-pc", "to": "sw", "label": "HDMI" },
+    { "id": "sw-to-display", "from": "sw", "to": "display", "label": "HDBaseT" },
+    { "id": "camera-to-sw", "from": "camera", "to": "sw", "label": "USB" }
+  ]
+}

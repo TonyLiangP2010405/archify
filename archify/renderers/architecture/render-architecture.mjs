@@ -10,6 +10,7 @@ import { animateAttr, focusEdgeAttrs, focusNodeAttrs, focusNodeTitle, loadDiagra
 import { componentBox, boundaryBox, connectionPath } from '../shared/layout-report.mjs';
 import { rendererFailure, throwDiagnosticProblems } from '../shared/diagnostics.mjs';
 import { readFaceplateImage } from '../shared/faceplate-meta.mjs';
+import { renderPictogram } from '../shared/pictograms.mjs';
 import { legendFootprint, relationshipLegendObstacles, resolveLegend, renderLegend as renderResolvedLegend } from '../shared/legend.mjs';
 import { availableNodeTextWidth, fittedNodeFontSize, minimumNodeTextWidth } from '../shared/text-fit.mjs';
 import { brandLabelFitWidth, brandMetadataFor, brandTopRailProblem, renderBrandMark } from '../shared/brand-marks.mjs';
@@ -553,7 +554,8 @@ let connectionLabels = connectionLabelRects();
 // can clip a valid explicit via route while every browser overflow check passes.
 const connectionGeometry = [
   ...connectionLabels,
-  ...[...faceplateModels.values()].map((model) => ({ ...faceplateCaptionRect(model.box) })),
+  ...[...components.values()].filter((c) => c.faceplate || c.pictogram)
+    .map((c) => ({ ...faceplateCaptionRect(c) })),
   ...asArray(arch.connections)
     .filter((conn) => components.has(conn.from) && components.has(conn.to))
     .flatMap((conn) => pathFor(conn).points.map(([x, y]) => ({ x, y, width: 0, height: 0 }))),
@@ -852,6 +854,49 @@ function validateArchitecture() {
       } else {
         seenPoints.set(key, portId);
       }
+    }
+  }
+
+  // Pictogram nodes: the art is the node, so the same overdraw rules apply.
+  for (const c of components.values()) {
+    if (!c.pictogram) continue;
+    if (c.faceplate) {
+      const message = `Component "${c.id}" declares both a pictogram and a faceplate; a node has one body.`;
+      diagnostics.push({
+        code: 'architecture/pictogram-faceplate-conflict', severity: 'error', message,
+        subject: { diagramType: 'architecture', nodeId: c.id },
+        evidence: { pictogram: c.pictogram },
+        supportedFixes: [`remove ${c.faceplate ? 'faceplate' : 'pictogram'} from component "${c.id}"`],
+      });
+      problems.push(message);
+      continue;
+    }
+    const forbidden = ['sublabel', 'tag', 'icon', 'brand']
+      .filter((field) => c[field] !== undefined && c[field] !== '')
+      .concat(Array.isArray(c.ports) && c.ports.length ? ['ports'] : []);
+    if (forbidden.length) {
+      const message = `Component "${c.id}" is a pictogram, so ${forbidden.join(', ')} cannot be drawn on it.`;
+      diagnostics.push({
+        code: 'architecture/pictogram-layout-conflict', severity: 'error', message,
+        subject: { diagramType: 'architecture', nodeId: c.id },
+        evidence: { forbidden },
+        supportedFixes: [
+          `remove ${forbidden.join(', ')} from component "${c.id}"`,
+          'or use a plain card instead of a pictogram',
+        ],
+      });
+      problems.push(message);
+    }
+    const caption = faceplateCaptionRect(c);
+    if (arch.meta?.viewBox && caption.y + caption.height > viewBox[1]) {
+      const message = `The caption of pictogram "${c.id}" falls outside the authored viewBox.`;
+      diagnostics.push({
+        code: 'architecture/pictogram-caption-outside', severity: 'error', message,
+        subject: { diagramType: 'architecture', nodeId: c.id },
+        evidence: { captionBottom: caption.y + caption.height, viewBoxHeight: viewBox[1] },
+        supportedFixes: [`raise meta.viewBox height to at least ${Math.ceil(caption.y + caption.height)}`],
+      });
+      problems.push(message);
     }
   }
 
@@ -1544,30 +1589,36 @@ function renderFaceplateMarks(model) {
 
 function renderComponent(c) {
   const plate = faceplateModels.get(c.id);
+  const pictogram = c.pictogram ? renderPictogram(c.pictogram, c) : '';
+  // A faceplate or a pictogram is the node: the box is only the routing anchor,
+  // so the label moves below it and the card body disappears.
+  const art = Boolean(plate || pictogram);
   const fill = componentFill[c.type] || 'c-external';
   const accent = componentText[c.type] || 't-muted';
   const rails = portRails(c);
   const contentWidth = c.width - rails.left - rails.right;
-  const cx = plate ? c.x + c.width / 2 : c.x + rails.left + contentWidth / 2;
-  const hasSub = !plate && c.sublabel != null && c.sublabel !== '';
-  const labelY = plate ? c.y + c.height + 10 : hasSub ? c.y + c.height / 2 - 2 : c.y + c.height / 2 + 4;
+  const cx = art ? c.x + c.width / 2 : c.x + rails.left + contentWidth / 2;
+  const hasSub = !art && c.sublabel != null && c.sublabel !== '';
+  const labelY = art ? c.y + c.height + 10 : hasSub ? c.y + c.height / 2 - 2 : c.y + c.height / 2 + 4;
   const sub = hasSub
     ? `\n        <text data-detail="context" x="${cx}" y="${c.y + c.height / 2 + 14}" class="t-muted" font-size="${fittedNodeFontSize(c.sublabel, contentWidth, componentTextFit.sublabelPreferred, componentTextFit.sublabelMinimum)}" text-anchor="middle">${esc(c.sublabel)}</text>`
     : '';
-  const tag = !plate && c.tag
+  const tag = !art && c.tag
     ? `\n        <text data-detail="fine" x="${cx}" y="${c.y + c.height - 8}" class="${accent}" font-size="${fittedNodeFontSize(c.tag, contentWidth, componentTextFit.tagPreferred, componentTextFit.tagMinimum)}" text-anchor="middle">${esc(c.tag)}</text>`
     : '';
-  const brand = plate ? '' : renderBrandMark(c, { x: c.x + c.width - 22, y: c.y + 6 });
+  const brand = art ? '' : renderBrandMark(c, { x: c.x + c.width - 22, y: c.y + 6 });
   const labelFontSize = fittedNodeFontSize(c.label,
-    plate ? c.width : Math.min(brandLabelFitWidth(c, c.width), contentWidth), 11, 8);
+    art ? c.width : Math.min(brandLabelFitWidth(c, c.width), contentWidth), 11, 8);
   const passport = { kind: c.type, sublabel: c.sublabel, tag: c.tag, context: componentContext(c), ...brandMetadataFor(c) };
   return `        <g ${focusNodeAttrs(c.id, c.label, passport, arch.meta.locale)}>
           ${focusNodeTitle(c.label, passport)}
-          <rect x="${c.x}" y="${c.y}" width="${c.width}" height="${c.height}" rx="8" class="c-mask"/>
+          ${plate || pictogram ? '' : `<rect x="${c.x}" y="${c.y}" width="${c.width}" height="${c.height}" rx="8" class="c-mask"/>`}
           ${plate
             ? `<image href="${esc(plate.image.dataUrl)}" x="${c.x}" y="${c.y}" width="${c.width}" height="${c.height}" preserveAspectRatio="none"/><rect x="${c.x}" y="${c.y}" width="${c.width}" height="${c.height}" rx="0" class="${fill}" style="fill:none" stroke-width="1.5"/>`
-            : `<rect x="${c.x}" y="${c.y}" width="${c.width}" height="${c.height}" rx="8" class="${fill}"${animateAttr(arch.meta, 'node', componentSteps.get(c.id))} stroke-width="1.5"/>`}
-          ${plate ? '' : renderSemanticSigil(c.type, { icon: c.icon, x: c.x + 6, y: c.y + 6 })}${brand ? `\n          ${brand}` : ''}${plate ? renderFaceplateMarks(plate) : renderPorts(c)}${plate ? `
+            : pictogram
+              ? `<g data-pictogram-node="${esc(c.pictogram)}">${pictogram}</g>`
+              : `<rect x="${c.x}" y="${c.y}" width="${c.width}" height="${c.height}" rx="8" class="${fill}"${animateAttr(arch.meta, 'node', componentSteps.get(c.id))} stroke-width="1.5"/>`}
+          ${art ? '' : renderSemanticSigil(c.type, { icon: c.icon, x: c.x + 6, y: c.y + 6 })}${brand ? `\n          ${brand}` : ''}${plate ? renderFaceplateMarks(plate) : pictogram ? '' : renderPorts(c)}${art ? `
           <rect x="${faceplateCaptionRect(c).x}" y="${faceplateCaptionRect(c).y}" width="${faceplateCaptionRect(c).width}" height="${faceplateCaptionRect(c).height}" class="c-mask"/>` : ''}
           <text data-node-label=""${hasSub ? ' data-detail-anchor=""' : ''} x="${cx}" y="${labelY}" class="t-primary" font-size="${labelFontSize}" font-weight="600" text-anchor="middle">${esc(c.label)}</text>${sub}${tag}
         </g>`;
