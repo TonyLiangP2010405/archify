@@ -879,6 +879,22 @@ export function createRouter(components, connections = [], {
         return { point, spread: true };
       }
     }
+    // No candidate cleared every neighbour: scan the whole side for the point
+    // with the most clearance before admitting defeat.
+    const low = axis === 0 ? rect.x + 2 : rect.y + 2;
+    const high = axis === 0 ? rect.x + rect.width - 2 : rect.y + rect.height - 2;
+    const need = occupied.length ? Math.min(...occupied.map((other) => other.spacing)) : 14;
+    let best = null;
+    let bestClearance = -1;
+    for (let value = Math.round(low); value <= Math.round(high); value += 1) {
+      const clearance = occupied.reduce((min, other) => Math.min(min, Math.abs(value - other.value)), Infinity);
+      if (clearance >= need && clearance > bestClearance) { best = value; bestClearance = clearance; }
+    }
+    if (best !== null) {
+      const point = [...preferred];
+      point[axis] = best;
+      return { point, spread: true };
+    }
     return { point: preferred, spread: true, crowded: true };
   }
 
@@ -901,7 +917,7 @@ export function createRouter(components, connections = [], {
         ? automaticEndpoint(conn, 'to', to, toSide, inferred.toSide)
         : { point: legacyPorts?.to || anchor(to, toSide), spread: Boolean(legacyPorts?.to) };
     const ports = { from: source.spread, to: target.spread };
-    const { start, end } = alignFacingPorts(
+    let { start, end } = alignFacingPorts(
       conn,
       from,
       to,
@@ -911,6 +927,17 @@ export function createRouter(components, connections = [], {
       toSide,
       ports,
     );
+    // Alignment slides an automatic endpoint along its side; never let it land
+    // on a fixed jack (named port or faceplate hole).
+    const clashesWithFixed = (rect, point, side) => [...fixedPorts?.get(rect.id)?.values() || []]
+      .some((port) => port.side === side
+        && !(Math.abs(port.point[0] - point[0]) < 0.01 && Math.abs(port.point[1] - point[1]) < 0.01)
+        && Math.abs((side === 'left' || side === 'right' ? point[1] : point[0])
+          - (side === 'left' || side === 'right' ? port.point[1] : port.point[0])) < 14);
+    if (clashesWithFixed(from, start, fromSide) || clashesWithFixed(to, end, toSide)) {
+      start = source.point;
+      end = target.point;
+    }
     return { from, to, start, end, fromSide, toSide, crowded: source.crowded || target.crowded };
   }
 

@@ -136,6 +136,12 @@ function nearestFaceplateSide(port, box) {
   return FACEPLATE_EDGES.reduce((best, side) => (distances[side] < distances[best] ? side : best), 'top');
 }
 
+function faceplateCaptionRect(component) {
+  const width = Math.ceil(textUnits(component.label) * 4.8) + 10;
+  const baseline = component.y + component.height + 10;
+  return { x: component.x + component.width / 2 - width / 2, y: baseline - 9, width, height: 12, baseline };
+}
+
 function faceplateFailure(code, message, component, evidence, supportedFixes) {
   return {
     code,
@@ -194,27 +200,42 @@ for (const component of components.values()) {
     const axis = side === 'top' || side === 'bottom' ? 0 : 1;
     const low = axis === 0 ? component.x + 2 : component.y + 2;
     const high = axis === 0 ? component.x + component.width - 2 : component.y + component.height - 2;
-    for (const delta of [0, 8, -8, 16, -16, 24, -24, 32, -32]) {
-      const candidate = [...point];
-      candidate[axis] = Math.min(high, Math.max(low, point[axis] + delta));
-      const key = `${side}:${Math.round(candidate[axis] * 10) / 10}`;
-      if (!usedEdgePoints.has(key)) {
-        usedEdgePoints.set(key, true);
-        return candidate;
+    const span = Math.max(0, high - low);
+    for (let step = 0; step <= Math.ceil(span); step += 1) {
+      for (const sign of step === 0 ? [1] : [1, -1]) {
+        const candidate = [...point];
+        candidate[axis] = Math.min(high, Math.max(low, point[axis] + sign * step));
+        const key = `${side}:${Math.round(candidate[axis] * 10) / 10}`;
+        if (!usedEdgePoints.has(key)) {
+          usedEdgePoints.set(key, true);
+          return candidate;
+        }
       }
     }
-    return point;
+    return null;
   };
+  const exhaustedExits = [];
   for (const port of faceplate.ports) {
+    if (ports.has(port.id)) {
+      const message = `Component "${component.id}" declares faceplate port "${port.id}" more than once — a duplicate hole would vanish.`;
+      faceplateDiagnostics.push(faceplateFailure('architecture/faceplate-port-duplicate', message, component,
+        { portId: port.id },
+        ['give the second hole a distinct id']));
+      faceplateProblems.push(message);
+      continue;
+    }
     const side = port.side || nearestFaceplateSide(port, component);
+    const foot = faceplateEdge(side, port, component);
+    const nudged = nudgeEdgePoint(side, foot);
+    if (!nudged) exhaustedExits.push(port.id);
     ports.set(port.id, {
       side,
-      point: nudgeEdgePoint(side, faceplateEdge(side, port, component)),
+      point: nudged || foot,
       jack: [component.x + port.x * component.width, component.y + port.y * component.height],
       label: port.label,
     });
   }
-  faceplateModels.set(component.id, { image: file, box: component, ports });
+  faceplateModels.set(component.id, { image: file, box: component, ports, exhaustedExits });
 }
 if (faceplateProblems.length) {
   throwDiagnosticProblems('Architecture faceplate validation failed', faceplateProblems, {
@@ -530,6 +551,7 @@ let connectionLabels = connectionLabelRects();
 // can clip a valid explicit via route while every browser overflow check passes.
 const connectionGeometry = [
   ...connectionLabels,
+  ...[...faceplateModels.values()].map((model) => ({ ...faceplateCaptionRect(model.box) })),
   ...asArray(arch.connections)
     .filter((conn) => components.has(conn.from) && components.has(conn.to))
     .flatMap((conn) => pathFor(conn).points.map(([x, y]) => ({ x, y, width: 0, height: 0 }))),
@@ -779,6 +801,33 @@ function validateArchitecture() {
         subject: { diagramType: 'architecture', nodeId: c.id },
         evidence: { width: c.width, height: c.height, requiredHeightPx },
         supportedFixes: [`set component "${c.id}" height to ${requiredHeightPx}`],
+      });
+      problems.push(message);
+    }
+    const exhausted = faceplateModels.get(c.id)?.exhaustedExits || [];
+    if (exhausted.length) {
+      const message = `Faceplate "${c.id}" has no free exit point left on the edge for ${exhausted.join(', ')} — two cables would share one point.`;
+      diagnostics.push({
+        code: 'architecture/faceplate-port-duplicate', severity: 'error', message,
+        subject: { diagramType: 'architecture', nodeId: c.id, portId: exhausted[0] },
+        evidence: { ports: exhausted },
+        supportedFixes: [
+          'spread the holes along the edge',
+          'or give an explicit side to holes that should leave elsewhere',
+        ],
+      });
+      problems.push(message);
+    }
+    const caption = faceplateCaptionRect(c);
+    // Cables may pass behind the caption; its mask keeps the name readable.
+    // Only an authored canvas that clips the caption is an error.
+    if (arch.meta?.viewBox && caption.y + caption.height > viewBox[1]) {
+      const message = `The faceplate caption of "${c.id}" falls outside the authored viewBox.`;
+      diagnostics.push({
+        code: 'architecture/faceplate-caption-outside', severity: 'error', message,
+        subject: { diagramType: 'architecture', nodeId: c.id },
+        evidence: { captionBottom: caption.y + caption.height, viewBoxHeight: viewBox[1] },
+        supportedFixes: [`raise meta.viewBox height to at least ${Math.ceil(caption.y + caption.height)}`],
       });
       problems.push(message);
     }
@@ -1483,7 +1532,8 @@ function renderComponent(c) {
           ${plate
             ? `<image href="${esc(plate.image.dataUrl)}" x="${c.x}" y="${c.y}" width="${c.width}" height="${c.height}" preserveAspectRatio="none"/><rect x="${c.x}" y="${c.y}" width="${c.width}" height="${c.height}" rx="0" class="${fill}" style="fill:none" stroke-width="1.5"/>`
             : `<rect x="${c.x}" y="${c.y}" width="${c.width}" height="${c.height}" rx="8" class="${fill}"${animateAttr(arch.meta, 'node', componentSteps.get(c.id))} stroke-width="1.5"/>`}
-          ${plate ? '' : renderSemanticSigil(c.type, { icon: c.icon, x: c.x + 6, y: c.y + 6 })}${brand ? `\n          ${brand}` : ''}${plate ? renderFaceplateMarks(plate) : renderPorts(c)}
+          ${plate ? '' : renderSemanticSigil(c.type, { icon: c.icon, x: c.x + 6, y: c.y + 6 })}${brand ? `\n          ${brand}` : ''}${plate ? renderFaceplateMarks(plate) : renderPorts(c)}${plate ? `
+          <rect x="${faceplateCaptionRect(c).x}" y="${faceplateCaptionRect(c).y}" width="${faceplateCaptionRect(c).width}" height="${faceplateCaptionRect(c).height}" class="c-mask"/>` : ''}
           <text data-node-label=""${hasSub ? ' data-detail-anchor=""' : ''} x="${cx}" y="${labelY}" class="t-primary" font-size="${labelFontSize}" font-weight="600" text-anchor="middle">${esc(c.label)}</text>${sub}${tag}
         </g>`;
 }

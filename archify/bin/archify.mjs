@@ -2428,15 +2428,18 @@ async function prepareExplainerInput(specification, inputPath, options = {}) {
 // Authored side files (faceplate images) resolve against the JSON the user
 // named, not the snapshot this command renders. Children inherit the value.
 function rememberAuthoredInput(input) {
-  if (!input || process.env.ARCHIFY_INPUT_PATH) return;
-  process.env.ARCHIFY_INPUT_PATH = path.resolve(input);
+  if (!input || process.env.ARCHIFY_AUTHORED_DIR) return;
+  process.env.ARCHIFY_AUTHORED_DIR = path.dirname(path.resolve(input));
 }
 
-function rendererEnv(quality, repoRoot, diagnosticJson = false) {
+function rendererEnv(quality, repoRoot, diagnosticJson = false, inputPath) {
+  const authored = process.env.ARCHIFY_AUTHORED_DIR
+    || (inputPath ? path.dirname(path.resolve(inputPath)) : null);
   return {
     ...(quality ? { ARCHIFY_QUALITY_PROFILE: quality } : {}),
     ...(repoRoot ? { ARCHIFY_REPO_ROOT: repoRoot } : {}),
     ...(diagnosticJson ? { ARCHIFY_DIAGNOSTIC_FORMAT: 'json' } : {}),
+    ...(authored ? { ARCHIFY_AUTHORED_DIR: authored } : {}),
   };
 }
 
@@ -3630,10 +3633,10 @@ function commitDeliveryPair({
   }
 }
 
-function renderValidatedArchitecture(inputPath, outputPath, quality, repoRoot, captureStagingFile) {
+function renderValidatedArchitecture(inputPath, outputPath, quality, repoRoot, captureStagingFile, authoredDir) {
   const render = runNode([rendererPath('architecture'), inputPath, outputPath], {
     stdio: 'pipe',
-    env: rendererEnv(quality, repoRoot, true),
+    env: rendererEnv(quality, repoRoot, true, authoredDir),
   });
   if (render.status !== 0) {
     const failure = rendererFailure(render);
@@ -4069,6 +4072,7 @@ async function commandCompare(args) {
         qualityArgs.quality,
         repoArgs.repoRoot,
         captureCompareStagingFile,
+        path.dirname(path.resolve(rawBaseInput)),
       );
     } catch (error) {
       const diagnosticEntry = error.diagnostics?.[0];
@@ -4089,6 +4093,7 @@ async function commandCompare(args) {
         qualityArgs.quality,
         repoArgs.repoRoot,
         captureCompareStagingFile,
+        path.dirname(path.resolve(rawHeadInput)),
       );
     } catch (error) {
       const diagnosticEntry = error.diagnostics?.[0];
@@ -4122,6 +4127,7 @@ async function commandCompare(args) {
       qualityArgs.quality,
       repoArgs.repoRoot,
       captureCompareStagingFile,
+      path.dirname(path.resolve(rawBaseInput)),
     );
     headResult = renderValidatedArchitecture(
       canonicalHeadInput,
@@ -4129,6 +4135,7 @@ async function commandCompare(args) {
       qualityArgs.quality,
       repoArgs.repoRoot,
       captureCompareStagingFile,
+      path.dirname(path.resolve(rawHeadInput)),
     );
 
     const semanticHash = (diagram) => createHash('sha256').update(canonicalArchitectureJson(diagram)).digest('hex');

@@ -43,10 +43,12 @@ function applyLocaleTranslations(diagramType, diagram) {
 }
 
 // The CLI renders a snapshot in a scratch directory, but relative side files
-// (for example faceplate images) belong to the JSON the author named.
-export function authoredPathFor(inputPath) {
-  const authored = process.env.ARCHIFY_INPUT_PATH;
-  return path.resolve(authored || inputPath);
+// (for example faceplate images) belong to the directory the author named.
+// Only the directory travels in the environment; the document path does not.
+export function authoredDirFor(inputPath) {
+  return process.env.ARCHIFY_AUTHORED_DIR
+    ? path.resolve(process.env.ARCHIFY_AUTHORED_DIR)
+    : path.dirname(path.resolve(inputPath));
 }
 
 // Common CLI head: node render-<type>.mjs [input.json] [output.html]
@@ -57,7 +59,7 @@ export function loadDiagram({ rendererDir, diagramType, defaultExample, argv = p
   // should install a process-level handler, before reading or validating input.
   installRendererDiagnosticBoundary();
   const skillRoot = path.resolve(rendererDir, '../..');
-  const inputPath = authoredPathFor(argv[2] || path.join(skillRoot, 'examples', defaultExample));
+  const inputPath = path.resolve(argv[2] || path.join(skillRoot, 'examples', defaultExample));
   let input;
   try {
     input = fs.readFileSync(inputPath, 'utf8');
@@ -112,7 +114,7 @@ export function loadDiagram({ rendererDir, diagramType, defaultExample, argv = p
     outPath,
     sourceEvidence,
     authoredPath: inputPath,
-    authoredDir: path.dirname(inputPath),
+    authoredDir: authoredDirFor(inputPath),
   };
 }
 
