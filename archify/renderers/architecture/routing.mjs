@@ -88,6 +88,7 @@ export function createRouter(components, connections = [], {
   minimumTerminalSegmentPx = 0,
   readabilityBottomMargin = 0,
   fixedPorts = null,
+  namedPortSides = null,
 } = {}) {
   const frameBorders = frames.flatMap((frame) => frameBorderSegments(frame));
   const LABEL_CLEARANCE = 4;
@@ -99,6 +100,9 @@ export function createRouter(components, connections = [], {
     return portId ? fixedPorts.get(componentId)?.get(portId) || null : null;
   }
   function portedSidesOf(componentId) {
+    // Named `ports` own their side; faceplate holes do not, so a panel may
+    // still receive ordinary cables between jacks.
+    if (namedPortSides) return namedPortSides.get(componentId) || new Set();
     const sides = new Set();
     for (const port of fixedPorts?.get(componentId)?.values() || []) sides.add(port.side);
     return sides;
@@ -841,6 +845,13 @@ export function createRouter(components, connections = [], {
     if (hasAuthoredRouteGeometry(conn) || conn.labelAt) return { point: preferred, spread: Boolean(initial) };
     const axis = side === 'left' || side === 'right' ? 1 : 0;
     const occupied = [];
+    // Fixed endpoints (named ports and faceplate holes) are occupied positions.
+    for (const [portId, port] of fixedPorts?.get(rect.id) || []) {
+      if (port.side !== side) continue;
+      const own = fixedEndpoint(conn, 'source') === port || fixedEndpoint(conn, 'target') === port;
+      if (own) continue;
+      occupied.push({ value: axis === 1 ? port.point[1] : port.point[0], spacing: 14, portId });
+    }
     for (const { conn: other, field, sideField } of incidentEndpoints.get(rect.id) || []) {
       if (other === conn || hasAuthoredRouteGeometry(other) || other.labelAt) continue;
       const routed = pathCache.get(other);

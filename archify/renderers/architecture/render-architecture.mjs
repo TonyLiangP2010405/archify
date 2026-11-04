@@ -9,6 +9,7 @@ import {
 import { animateAttr, focusEdgeAttrs, focusNodeAttrs, focusNodeTitle, loadDiagramWithBrandMarks, writeDiagram, svgAccessibleText, svgRootAttrs } from '../shared/cli.mjs';
 import { componentBox, boundaryBox, connectionPath } from '../shared/layout-report.mjs';
 import { rendererFailure, throwDiagnosticProblems } from '../shared/diagnostics.mjs';
+import { readFaceplateImage } from '../shared/faceplate-meta.mjs';
 import { legendFootprint, relationshipLegendObstacles, resolveLegend, renderLegend as renderResolvedLegend } from '../shared/legend.mjs';
 import { availableNodeTextWidth, fittedNodeFontSize, minimumNodeTextWidth } from '../shared/text-fit.mjs';
 import { brandLabelFitWidth, brandMetadataFor, brandTopRailProblem, renderBrandMark } from '../shared/brand-marks.mjs';
@@ -55,7 +56,7 @@ const componentTextFit = {
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const layoutJsonMode = process.argv.includes('--layout-json');
 const cliArgs = process.argv.filter((arg) => arg !== '--layout-json');
-const { diagram: arch, template, outPath, sourceEvidence } = await loadDiagramWithBrandMarks({
+const { diagram: arch, template, outPath, sourceEvidence, authoredDir } = await loadDiagramWithBrandMarks({
   rendererDir: __dirname,
   diagramType: 'architecture',
   defaultExample: 'web-app.architecture.json',
@@ -111,6 +112,113 @@ for (const component of components.values()) {
     { side: slot.side, point: [slot.x, slot.y] },
   ])));
 }
+// ---- Faceplate nodes --------------------------------------------------------
+// A faceplate is one image plus holes at 0-1 coordinates. The hole's lead ends
+// on the nearest box edge in pixels, and that edge point is the route endpoint.
+const FACEPLATE_EDGES = ['top', 'right', 'bottom', 'left'];
+
+function faceplateEdge(side, port, box) {
+  switch (side) {
+    case 'left': return [box.x, box.y + port.y * box.height];
+    case 'right': return [box.x + box.width, box.y + port.y * box.height];
+    case 'top': return [box.x + port.x * box.width, box.y];
+    default: return [box.x + port.x * box.width, box.y + box.height];
+  }
+}
+
+function nearestFaceplateSide(port, box) {
+  const distances = {
+    left: port.x * box.width,
+    right: (1 - port.x) * box.width,
+    top: port.y * box.height,
+    bottom: (1 - port.y) * box.height,
+  };
+  return FACEPLATE_EDGES.reduce((best, side) => (distances[side] < distances[best] ? side : best), 'top');
+}
+
+function faceplateFailure(code, message, component, evidence, supportedFixes) {
+  return {
+    code,
+    severity: 'error',
+    message,
+    subject: { diagramType: 'architecture', nodeId: component.id },
+    evidence,
+    supportedFixes,
+  };
+}
+
+const faceplateModels = new Map();
+const faceplateDiagnostics = [];
+const faceplateProblems = [];
+for (const component of components.values()) {
+  if (!component.faceplate) continue;
+  const { faceplate } = component;
+  const absolute = path.isAbsolute(faceplate.image.path)
+    ? faceplate.image.path
+    : path.resolve(authoredDir, faceplate.image.path);
+  let file = null;
+  try {
+    file = readFaceplateImage(absolute);
+  } catch (error) {
+    if (error?.code !== 'ENOENT') throw error;
+  }
+  if (!file) {
+    const message = `Component "${component.id}" faceplate image could not be read: ${faceplate.image.path}.`;
+    faceplateDiagnostics.push(faceplateFailure('architecture/faceplate-missing-image', message, component,
+      { image: faceplate.image.path, resolved: absolute },
+      ['fix the image path', 'or copy the image beside the JSON']));
+    faceplateProblems.push(message);
+    continue;
+  }
+  if (file.sha256 !== faceplate.image.sha256) {
+    const message = `Component "${component.id}" faceplate image does not match its pinned sha256.`;
+    faceplateDiagnostics.push(faceplateFailure('architecture/faceplate-image-changed', message, component,
+      { expected: faceplate.image.sha256, actual: file.sha256 },
+      ['update image.sha256 after a deliberate image change', 'or restore the original image']));
+    faceplateProblems.push(message);
+    continue;
+  }
+  if (file.width !== faceplate.width || file.height !== faceplate.height) {
+    const message = `Component "${component.id}" declares a ${faceplate.width}x${faceplate.height} faceplate but the image is ${file.width}x${file.height}.`;
+    faceplateDiagnostics.push(faceplateFailure('architecture/faceplate-image-mismatch', message, component,
+      { declared: [faceplate.width, faceplate.height], actual: [file.width, file.height] },
+      [`set width to ${file.width} and height to ${file.height}`]));
+    faceplateProblems.push(message);
+    continue;
+  }
+  const ports = new Map();
+  for (const port of faceplate.ports) {
+    const side = port.side || nearestFaceplateSide(port, component);
+    ports.set(port.id, {
+      side,
+      point: faceplateEdge(side, port, component),
+      jack: [component.x + port.x * component.width, component.y + port.y * component.height],
+      label: port.label,
+    });
+  }
+  faceplateModels.set(component.id, { image: file, box: component, ports });
+}
+if (faceplateProblems.length) {
+  throwDiagnosticProblems('Architecture faceplate validation failed', faceplateProblems, {
+    subject: { diagramType: 'architecture' },
+    diagnostics: faceplateDiagnostics,
+  });
+}
+
+// Faceplate holes join the router's fixed endpoints. Named-port side
+// exclusivity stays limited to `ports`, so ordinary cables may still enter a
+// panel; the router keeps clear of the jacks themselves.
+for (const [id, model] of faceplateModels) {
+  const endpoints = fixedPorts.get(id) || new Map();
+  for (const [portId, port] of model.ports) endpoints.set(portId, { side: port.side, point: port.point });
+  fixedPorts.set(id, endpoints);
+}
+const namedPortSides = new Map();
+for (const component of components.values()) {
+  const sides = new Set(componentPorts(component).map((port) => port.side));
+  if (sides.size) namedPortSides.set(component.id, sides);
+}
+
 const enforcesBoundaryTitleComposition = Boolean(arch.meta?.quality_profile);
 const componentSteps = new Map();
 for (const [index, conn] of asArray(arch.connections).entries()) {
@@ -374,6 +482,7 @@ const routerOptions = {
   distinctAutomaticPorts: true,
   preferReadableRoutes: true,
   fixedPorts,
+  namedPortSides,
   // A single outward stub below the scene can remove a crossing without
   // widening the canvas or shrinking its text. Fixed canvases keep their bounds.
   readabilityBottomMargin: arch.meta?.viewBox ? 0 : 24,
@@ -690,15 +799,22 @@ function validateArchitecture() {
     ]) {
       const component = components.get(componentId);
       if (!component) continue;
-      const ports = componentPorts(component);
+      const namedPorts = componentPorts(component);
+      const platePorts = (component.faceplate?.ports || []).map((port) => ({
+        ...port,
+        side: port.side || nearestFaceplateSide(port, component),
+      }));
+      // Holes answer unknown-port and one-cable-per-hole; only named ports own
+      // a side, so a faceplate never triggers side exclusivity.
+      const ports = [...namedPorts, ...platePorts];
       if (!portId) {
         const side = connectionEndpointSide(conn, endpoint);
-        if (!ports.some((port) => port.side === side)) continue;
+        if (!namedPorts.some((port) => port.side === side)) continue;
         const message = `Connection "${connectionId}" enters the ${side} side of "${componentId}", which carries named ports — declare a port or use another side.`;
         diagnostics.push({
           code: 'architecture/port-side-exclusive', severity: 'error', message,
           subject: { diagramType: 'architecture', nodeId: componentId, side, connectionId },
-          evidence: { declaredPorts: ports.filter((port) => port.side === side).map((port) => port.id) },
+          evidence: { declaredPorts: namedPorts.filter((port) => port.side === side).map((port) => port.id) },
           supportedFixes: [
             `declared a ${side} port on connection "${connectionId}"`,
             `set ${endpoint === 'source' ? 'fromSide' : 'toSide'} to a side without ports`,
@@ -1261,6 +1377,7 @@ function renderPorts(c) {
 }
 
 function renderComponent(c) {
+  const plate = faceplateModels.get(c.id);
   const fill = componentFill[c.type] || 'c-external';
   const accent = componentText[c.type] || 't-muted';
   const rails = portRails(c);
@@ -1280,7 +1397,9 @@ function renderComponent(c) {
   return `        <g ${focusNodeAttrs(c.id, c.label, passport, arch.meta.locale)}>
           ${focusNodeTitle(c.label, passport)}
           <rect x="${c.x}" y="${c.y}" width="${c.width}" height="${c.height}" rx="8" class="c-mask"/>
-          <rect x="${c.x}" y="${c.y}" width="${c.width}" height="${c.height}" rx="8" class="${fill}"${animateAttr(arch.meta, 'node', componentSteps.get(c.id))} stroke-width="1.5"/>
+          ${plate
+            ? `<image href="${esc(plate.image.dataUrl)}" x="${c.x}" y="${c.y}" width="${c.width}" height="${c.height}" preserveAspectRatio="none"/><rect x="${c.x}" y="${c.y}" width="${c.width}" height="${c.height}" rx="0" class="${fill}" style="fill:none" stroke-width="1.5"/>`
+            : `<rect x="${c.x}" y="${c.y}" width="${c.width}" height="${c.height}" rx="8" class="${fill}"${animateAttr(arch.meta, 'node', componentSteps.get(c.id))} stroke-width="1.5"/>`}
           ${renderSemanticSigil(c.type, { icon: c.icon, x: c.x + 6, y: c.y + 6 })}${brand ? `\n          ${brand}` : ''}${renderPorts(c)}
           <text data-node-label=""${hasSub ? ' data-detail-anchor=""' : ''} x="${cx}" y="${labelY}" class="t-primary" font-size="${labelFontSize}" font-weight="600" text-anchor="middle">${esc(c.label)}</text>${sub}${tag}
         </g>`;

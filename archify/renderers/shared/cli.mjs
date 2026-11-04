@@ -106,7 +106,14 @@ export function loadDiagram({ rendererDir, diagramType, defaultExample, argv = p
     throwOutputError(error, path.resolve(outputRequest.requestedOutput || outputRequest.authoredOutput || outputRequest.defaultOutput));
   }
   outputPathGuards.set(outPath, outputRequest);
-  return { diagram, template, outPath, sourceEvidence };
+  return {
+    diagram,
+    template,
+    outPath,
+    sourceEvidence,
+    authoredPath: inputPath,
+    authoredDir: path.dirname(inputPath),
+  };
 }
 
 // Brand URL capture is the only asynchronous authoring step. Typed renderers
