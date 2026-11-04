@@ -58,5 +58,6 @@ test('the artifact keeps a single svg', () => {
 });
 
 test('an empty ports array renders the same bytes as no ports field', () => {
-  assert.equal(render(withPorts([])), render(withPorts(undefined)));
+  const doc = (ports) => ({ ...withPorts(ports), connections: [] });
+  assert.equal(render(doc([])), render(doc(undefined)));
 });

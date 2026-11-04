@@ -5242,6 +5242,8 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           svg[data-node-ui] .phase-rule { opacity: .5; stroke-dasharray: none; }
           svg[data-node-ui] .phase-chip { stroke: var(--lane-stroke); stroke-width: .75px; }
           svg[data-node-ui] g[data-edge-from] > rect.c-mask { rx: 7px; stroke: var(--lane-stroke); stroke-width: .75px; }
+          svg[data-node-ui] .c-port-jack { fill: var(--mask); stroke: var(--lane-stroke); stroke-width: .8px; }
+          svg[data-node-ui][data-preset="blueprint"] .c-port-jack { rx: 1px; }
           svg[data-node-ui][data-preset="blueprint"] :is([data-graph-role="structural-frame-label-mask"], g[data-edge-from] > rect.c-mask, .phase-chip) { rx: 2px; }
           svg[data-node-ui][data-preset="editorial"] :is([data-graph-role="structural-frame-label-mask"], g[data-edge-from] > rect.c-mask, .phase-chip) { rx: 3px; }
         </style>
