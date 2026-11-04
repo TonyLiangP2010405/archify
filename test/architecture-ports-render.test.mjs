@@ -61,3 +61,9 @@ test('an empty ports array renders the same bytes as no ports field', () => {
   const doc = (ports) => ({ ...withPorts(ports), connections: [] });
   assert.equal(render(doc([])), render(doc(undefined)));
 });
+
+test('the port jack style only ships with a ported artifact', () => {
+  const plain = { ...withPorts(undefined), connections: [] };
+  assert.doesNotMatch(render(plain), /c-port-jack/);
+  assert.match(render(withPorts(PORTS)), /\.c-port-jack/);
+});

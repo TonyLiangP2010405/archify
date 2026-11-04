@@ -60,3 +60,15 @@ test('no ports means no slots and no rails', () => {
   assert.equal(portSlots(plain).size, 0);
   assert.deepEqual(portRails(plain), { left: 0, right: 0 });
 });
+
+test('the rail budget covers sublabel and tag text, not just the label', () => {
+  const c = box(0, 200, [
+    { id: 'in-1', label: 'HDMI IN 1', side: 'left' },
+    { id: 'out-1', label: 'HDMI OUT 1', side: 'right' },
+  ]);
+  assert.equal(portRailCrowding(c), null, 'short copy fits');
+  c.sublabel = 'HDBaseT fiber extenders dual-signal 4K60 processing';
+  const crowded = portRailCrowding(c);
+  assert.ok(crowded, 'a long sublabel must not fit beside two rails');
+  assert.ok(crowded.requiredWidthPx > 240);
+});

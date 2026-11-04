@@ -21,12 +21,26 @@ function validate(doc) {
   }
 }
 
-const doc = ({ ports, connections = [], height = 170, width = 240, label = 'AV Matrix' }) => ({
+test('a long sublabel forces a wider card when rails are present', () => {
+  const { receipt } = validate(doc({
+    width: 240,
+    ports: [
+      { id: 'in-1', label: 'HDMI IN 1', side: 'left' },
+      { id: 'out-1', label: 'HDMI OUT 1', side: 'right' },
+    ],
+    sublabel: 'HDBaseT fiber extenders dual-signal 4K60 processing',
+  }));
+  const entry = receipt.diagnostics.find((item) => item.code === 'architecture/port-rail-crowded');
+  assert.ok(entry, 'sublabel text must be part of the rail budget');
+  assert.ok(entry.evidence.requiredWidthPx > 240);
+});
+
+const doc = ({ ports, connections = [], height = 170, width = 240, label = 'AV Matrix', sublabel }) => ({
   schema_version: 1,
   diagram_type: 'architecture',
   meta: { title: 'Port diagnostics', output: 'ports-diagnostics.html' },
   components: [
-    { id: 'matrix', type: 'backend', label, pos: [200, 200], size: [width, height], ports },
+    { id: 'matrix', type: 'backend', label, pos: [200, 200], size: [width, height], ports, ...(sublabel ? { sublabel } : {}) },
     { id: 'tv', type: 'external', label: 'Display', pos: [600, 250], size: [120, 60] },
   ],
   connections,

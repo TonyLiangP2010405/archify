@@ -16,6 +16,7 @@ export const PORT_JACK_HEIGHT = 10;
 
 const SIDES = ['left', 'right'];
 const LABEL_MINIMUM_PX = 8;
+const DETAIL_MINIMUM_PX = 6;
 // Text padding already reserved inside a card by availableNodeTextWidth().
 const CARD_TEXT_PADDING = 8;
 
@@ -83,12 +84,17 @@ export function portCapacity(component) {
   });
 }
 
-export function portRailCrowding(component) {
+export function portRailCrowding(component, { labelMinimum = LABEL_MINIMUM_PX, detailMinimum = DETAIL_MINIMUM_PX } = {}) {
   const rails = portRails(component);
   if (!rails.left && !rails.right) return null;
-  const requiredPx = rails.left + rails.right
-    + minimumNodeTextWidth(component.label ?? '', LABEL_MINIMUM_PX)
-    + CARD_TEXT_PADDING;
+  // Every text row the card draws has to fit between the rails, not just the
+  // label: a long sublabel or tag collides with the jacks the same way.
+  const minimumTextWidth = Math.max(
+    minimumNodeTextWidth(component.label ?? '', labelMinimum),
+    component.sublabel ? minimumNodeTextWidth(component.sublabel, detailMinimum) : 0,
+    component.tag ? minimumNodeTextWidth(component.tag, detailMinimum) : 0,
+  );
+  const requiredPx = rails.left + rails.right + minimumTextWidth + CARD_TEXT_PADDING;
   if (component.width >= requiredPx) return null;
   return { requiredWidthPx: Math.ceil(requiredPx), availableWidthPx: component.width };
 }

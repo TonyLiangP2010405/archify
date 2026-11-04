@@ -5,7 +5,7 @@ const TONES = ['frontend', 'backend', 'database', 'cloud', 'security', 'messageb
 
 export const NODE_CARD_ATTR = 'data-node-ui=""';
 
-export function nodeCardStyle() {
+export function nodeCardStyle({ portJacks = false } = {}) {
   const all = 'svg[data-node-ui]';
   const solid = `${all}:is([data-preset="classic"], [data-preset="signal-flow"], [data-preset="editorial"])`;
   const blueprint = `${all}[data-preset="blueprint"]`;
@@ -25,9 +25,9 @@ ${TONES.map((tone) => `          ${dark} ${node}.c-${tone} { fill: color-mix(in 
           ${all} [data-composition-frame-kind="security-group"] > ${frameLabel} { fill: color-mix(in srgb, var(--security-stroke) 9%, var(--mask)); stroke: color-mix(in srgb, var(--security-stroke) 36%, var(--mask)); }
           ${all} .phase-rule { opacity: .5; stroke-dasharray: none; }
           ${all} .phase-chip { stroke: var(--lane-stroke); stroke-width: .75px; }
-          ${all} ${edgeLabel} { rx: 7px; stroke: var(--lane-stroke); stroke-width: .75px; }
+          ${all} ${edgeLabel} { rx: 7px; stroke: var(--lane-stroke); stroke-width: .75px; }${portJacks ? `
           ${all} .c-port-jack { fill: var(--mask); stroke: var(--lane-stroke); stroke-width: .8px; }
-          ${blueprint} .c-port-jack { rx: 1px; }
+          ${blueprint} .c-port-jack { rx: 1px; }` : ''}
           ${blueprint} :is(${frameLabel}, ${edgeLabel}, .phase-chip) { rx: 2px; }
           ${editorial} :is(${frameLabel}, ${edgeLabel}, .phase-chip) { rx: 3px; }
         </style>`;

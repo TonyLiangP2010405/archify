@@ -1329,7 +1329,7 @@ function renderSvg() {
   return `      <svg viewBox="0 0 ${viewBox[0]} ${viewBox[1]}" ${svgRootAttrs(arch.meta)} ${NODE_CARD_ATTR}${readerFit}${readerMinimumText}${readerPrimaryText}>
 ${svgAccessibleText(arch.meta, 'architecture')}
 ${renderDefinitions()}
-${nodeCardStyle()}
+${nodeCardStyle({ portJacks: fixedPorts.size > 0 })}
 
         <!-- Background Grid -->
         <rect width="100%" height="100%" fill="url(#grid)" />

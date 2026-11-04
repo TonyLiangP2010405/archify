@@ -167,6 +167,8 @@ function normalizedField(item, field) {
   const value = item?.[field];
   if (field === 'sources' && Array.isArray(value)) return sortedObjects(value);
   if (field === 'wraps' && Array.isArray(value)) return sorted(value);
+  // An empty port list means the same thing as no list at all.
+  if (field === 'ports' && Array.isArray(value) && value.length === 0) return undefined;
   return value;
 }
 

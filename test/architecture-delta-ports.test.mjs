@@ -35,3 +35,15 @@ test('moving a cable to another port is a semantic connection change', () => {
   assert.equal(change.status, 'changed');
   assert.ok(change.classifications.includes('semantic'));
 });
+
+test('an empty ports array is not a semantic change', () => {
+  const head = base();
+  head.components[0].ports = [];
+  head.connections = [];
+  const bare = base();
+  delete bare.components[0].ports;
+  bare.connections = [];
+  const receipt = compareArchitecture(bare, head);
+  assert.equal(receipt.changes.components.filter((entry) => entry.id === 'matrix').length, 0);
+  assert.equal(receipt.summary.components.changed, 0);
+});
