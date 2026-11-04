@@ -187,11 +187,29 @@ for (const component of components.values()) {
     continue;
   }
   const ports = new Map();
+  // Two jacks at one height both leave through the same side edge; nudge the
+  // second along that edge so two cables never share one exit point.
+  const usedEdgePoints = new Map();
+  const nudgeEdgePoint = (side, point) => {
+    const axis = side === 'top' || side === 'bottom' ? 0 : 1;
+    const low = axis === 0 ? component.x + 2 : component.y + 2;
+    const high = axis === 0 ? component.x + component.width - 2 : component.y + component.height - 2;
+    for (const delta of [0, 8, -8, 16, -16, 24, -24, 32, -32]) {
+      const candidate = [...point];
+      candidate[axis] = Math.min(high, Math.max(low, point[axis] + delta));
+      const key = `${side}:${Math.round(candidate[axis] * 10) / 10}`;
+      if (!usedEdgePoints.has(key)) {
+        usedEdgePoints.set(key, true);
+        return candidate;
+      }
+    }
+    return point;
+  };
   for (const port of faceplate.ports) {
     const side = port.side || nearestFaceplateSide(port, component);
     ports.set(port.id, {
       side,
-      point: faceplateEdge(side, port, component),
+      point: nudgeEdgePoint(side, faceplateEdge(side, port, component)),
       jack: [component.x + port.x * component.width, component.y + port.y * component.height],
       label: port.label,
     });
@@ -766,17 +784,17 @@ function validateArchitecture() {
     }
     const seenPoints = new Map();
     for (const [portId, port] of faceplateModels.get(c.id)?.ports || new Map()) {
-      const key = `${port.side}:${Math.round(port.point[0] * 10) / 10}:${Math.round(port.point[1] * 10) / 10}`;
+      const key = `${Math.round(port.jack[0] * 10) / 10}:${Math.round(port.jack[1] * 10) / 10}`;
       const first = seenPoints.get(key);
       if (first) {
-        const message = `Faceplate ports "${first}" and "${portId}" on "${c.id}" both leave the ${port.side} edge at the same point.`;
+        const message = `Faceplate ports "${first}" and "${portId}" on "${c.id}" sit at the same jack position.`;
         diagnostics.push({
           code: 'architecture/faceplate-port-duplicate', severity: 'error', message,
           subject: { diagramType: 'architecture', nodeId: c.id, portId },
-          evidence: { firstPortId: first, side: port.side, point: port.point.map((value) => Math.round(value * 10) / 10) },
+          evidence: { firstPortId: first, side: port.side, jack: port.jack.map((value) => Math.round(value * 10) / 10) },
           supportedFixes: [
-            'move one hole further along the edge',
-            'or set an explicit side so the leads leave through different edges',
+            'move one of the two holes in the inventory',
+            'or remove the duplicate jack',
           ],
         });
         problems.push(message);

@@ -58,14 +58,24 @@ test('an aspect-locked node must match the image ratio', () => {
   assert.equal(entry.evidence.requiredHeightPx, 210);
 });
 
-test('two holes on one edge point are rejected', () => {
+test('two holes at the same jack position are rejected', () => {
   const { receipt } = validate((doc) => {
     doc.components[0].faceplate.ports = [
-      { id: 'a', label: 'A', x: 0.5, y: 0.9 },
-      { id: 'b', label: 'B', x: 0.5, y: 0.95 },
+      { id: 'a', label: 'A', x: 0.5, y: 0.5 },
+      { id: 'b', label: 'B', x: 0.5, y: 0.5 },
     ];
   });
   assert.ok(codes(receipt).includes('architecture/faceplate-port-duplicate'));
+});
+
+test('two jacks at one height leave through separate edge points', () => {
+  const { status: ok } = validate((doc) => {
+    doc.components[0].faceplate.ports = [
+      { id: 'a', label: 'A', x: 0.84, y: 0.5 },
+      { id: 'b', label: 'B', x: 0.9, y: 0.5 },
+    ];
+  });
+  assert.equal(ok, 0, 'a shared edge projection is nudged, not rejected');
 });
 
 test('sublabel is rejected on a faceplate node', () => {
