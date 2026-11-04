@@ -98,6 +98,20 @@
             "items": false,
             "minItems": 2,
             "maxItems": 2
+          },
+          "ports": {
+            "type": "array",
+            "maxItems": 16,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["id", "label", "side"],
+              "properties": {
+                "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]{0,31}$" },
+                "label": { "type": "string", "minLength": 1, "maxLength": 20 },
+                "side": { "enum": ["left", "right"] }
+              }
+            }
           }
         }
       }
@@ -133,6 +147,8 @@
           "label": { "type": "string" },
           "variant": { "$ref": "common.schema.json#/$defs/variant" },
           "fromSide": { "$ref": "common.schema.json#/$defs/side" },
+          "fromPort": { "type": "string", "minLength": 1, "maxLength": 32 },
+          "toPort": { "type": "string", "minLength": 1, "maxLength": 32 },
           "toSide": { "$ref": "common.schema.json#/$defs/side" },
           "route": { "enum": ["auto", "straight", "orthogonal-h", "orthogonal-v"] },
           "via": {
