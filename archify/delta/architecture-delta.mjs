@@ -182,13 +182,13 @@ function fieldChanges(before, after, groups) {
 }
 
 const COMPONENT_FIELDS = {
-  semantic: ['type', 'label', 'sublabel', 'tag', 'brand', 'icon'],
+  semantic: ['type', 'label', 'sublabel', 'tag', 'brand', 'icon', 'ports'],
   evidence: ['sources'],
   geometry: ['row', 'col', 'pos', 'size'],
 };
 const CONNECTION_FIELDS = {
   topology: ['from', 'to'],
-  semantic: ['label', 'variant'],
+  semantic: ['label', 'variant', 'fromPort', 'toPort'],
   geometry: ['fromSide', 'toSide', 'route', 'via', 'labelAt', 'labelDx', 'labelDy', 'labelSegment', 'width'],
 };
 const BOUNDARY_FIELDS = { scope: ['wraps'], geometry: ['pad'] };
