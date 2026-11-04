@@ -732,6 +732,60 @@ function validateArchitecture() {
     }
   }
 
+  // Faceplate structure: the image is the node, so nothing may overdraw it and
+  // the box must keep the panel's ratio.
+  for (const c of components.values()) {
+    if (!c.faceplate) continue;
+    const forbidden = ['sublabel', 'tag', 'icon', 'brand']
+      .filter((field) => c[field] !== undefined && c[field] !== '')
+      .concat(Array.isArray(c.ports) && c.ports.length ? ['ports'] : [])
+      .concat(grid ? ['layout.mode: grid'] : []);
+    if (forbidden.length) {
+      const message = `Component "${c.id}" is a faceplate, so ${forbidden.join(', ')} cannot be drawn on it.`;
+      diagnostics.push({
+        code: 'architecture/faceplate-layout-conflict', severity: 'error', message,
+        subject: { diagramType: 'architecture', nodeId: c.id },
+        evidence: { forbidden },
+        supportedFixes: [
+          `remove ${forbidden.join(', ')} from component "${c.id}"`,
+          'or use a plain card instead of a faceplate',
+        ],
+      });
+      problems.push(message);
+    }
+    const requiredHeightPx = Math.round(c.width * (c.faceplate.height / c.faceplate.width));
+    if (Math.abs(c.height - requiredHeightPx) > 0.5) {
+      const message = `Component "${c.id}" is ${c.width}x${c.height} but its faceplate ratio needs height ${requiredHeightPx}.`;
+      diagnostics.push({
+        code: 'architecture/faceplate-aspect', severity: 'error', message,
+        subject: { diagramType: 'architecture', nodeId: c.id },
+        evidence: { width: c.width, height: c.height, requiredHeightPx },
+        supportedFixes: [`set component "${c.id}" height to ${requiredHeightPx}`],
+      });
+      problems.push(message);
+    }
+    const seenPoints = new Map();
+    for (const [portId, port] of faceplateModels.get(c.id)?.ports || new Map()) {
+      const key = `${port.side}:${Math.round(port.point[0] * 10) / 10}:${Math.round(port.point[1] * 10) / 10}`;
+      const first = seenPoints.get(key);
+      if (first) {
+        const message = `Faceplate ports "${first}" and "${portId}" on "${c.id}" both leave the ${port.side} edge at the same point.`;
+        diagnostics.push({
+          code: 'architecture/faceplate-port-duplicate', severity: 'error', message,
+          subject: { diagramType: 'architecture', nodeId: c.id, portId },
+          evidence: { firstPortId: first, side: port.side, point: port.point.map((value) => Math.round(value * 10) / 10) },
+          supportedFixes: [
+            'move one hole further along the edge',
+            'or set an explicit side so the leads leave through different edges',
+          ],
+        });
+        problems.push(message);
+      } else {
+        seenPoints.set(key, portId);
+      }
+    }
+  }
+
   // Named connector ports — structural truth, not layout taste.
   const portUse = new Map();
   for (const c of components.values()) {
