@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Patch panel: two sources to two displays",
+    "output": "av-patch-panel-rendered.html",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "player",
+      "type": "external",
+      "label": "Media Player",
+      "pos": [
+        40,
+        40
+      ],
+      "size": [
+        150,
+        70
+      ],
+      "ports": [
+        {
+          "id": "hdmi-out",
+          "label": "HDMI OUT",
+          "side": "right"
+        }
+      ]
+    },
+    {
+      "id": "laptop",
+      "type": "external",
+      "label": "Laptop",
+      "pos": [
+        40,
+        128
+      ],
+      "size": [
+        150,
+        70
+      ],
+      "ports": [
+        {
+          "id": "hdmi-out",
+          "label": "HDMI OUT",
+          "side": "right"
+        }
+      ]
+    },
+    {
+      "id": "matrix",
+      "type": "backend",
+      "label": "AV Matrix",
+      "pos": [
+        320,
+        53
+      ],
+      "size": [
+        250,
+        220
+      ],
+      "ports": [
+        {
+          "id": "in-1",
+          "label": "HDMI IN 1",
+          "side": "left"
+        },
+        {
+          "id": "in-2",
+          "label": "HDMI IN 2",
+          "side": "left"
+        },
+        {
+          "id": "in-3",
+          "label": "HDMI IN 3",
+          "side": "left"
+        },
+        {
+          "id": "out-1",
+          "label": "HDMI OUT 1",
+          "side": "right"
+        },
+        {
+          "id": "out-2",
+          "label": "HDMI OUT 2",
+          "side": "right"
+        }
+      ]
+    },
+    {
+      "id": "display-a",
+      "type": "external",
+      "label": "Display A",
+      "pos": [
+        700,
+        40
+      ],
+      "size": [
+        150,
+        70
+      ],
+      "ports": [
+        {
+          "id": "hdmi-in",
+          "label": "HDMI IN",
+          "side": "left"
+        }
+      ]
+    },
+    {
+      "id": "display-b",
+      "type": "external",
+      "label": "Display B",
+      "pos": [
+        700,
+        216
+      ],
+      "size": [
+        150,
+        70
+      ],
+      "ports": [
+        {
+          "id": "hdmi-in",
+          "label": "HDMI IN",
+          "side": "left"
+        }
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "player-to-in-1",
+      "from": "player",
+      "to": "matrix",
+      "fromPort": "hdmi-out",
+      "toPort": "in-1"
+    },
+    {
+      "id": "laptop-to-in-2",
+      "from": "laptop",
+      "to": "matrix",
+      "fromPort": "hdmi-out",
+      "toPort": "in-2"
+    },
+    {
+      "id": "out-1-to-display-a",
+      "from": "matrix",
+      "to": "display-a",
+      "fromPort": "out-1",
+      "toPort": "hdmi-in"
+    },
+    {
+      "id": "out-2-to-display-b",
+      "from": "matrix",
+      "to": "display-b",
+      "fromPort": "out-2",
+      "toPort": "hdmi-in"
+    }
+  ]
+}

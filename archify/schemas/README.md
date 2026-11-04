@@ -116,6 +116,14 @@ authored ID enables a stable `#relation=<id>` viewer link that survives array
 reordering. ID-less documents remain valid and their relationship pins stay
 local to the current page.
 
+Architecture components accept an optional `ports` array of
+`{ "id", "label", "side": "left" | "right" }` entries, ordered as drawn, and
+architecture connections accept `fromPort` / `toPort` naming one port on their
+own endpoint component. A named port fixes that endpoint to the jack and owns
+its side; a ported side carries no ordinary automatic endpoint, and one jack
+takes one connection. Port geometry (band, spacing, rail) is an authoring
+budget, not authored coordinates: see `references/authoring-defaults.md`.
+
 Every semantic node collection (`components`, `nodes`, `participants`, and
 `states`) also accepts one optional `brand`: either a canonical string returned
 by `archify brands --json`, or a digest-pinned `{ "url", "sha256" }` object
