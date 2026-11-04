@@ -184,7 +184,7 @@ function fieldChanges(before, after, groups) {
 }
 
 const COMPONENT_FIELDS = {
-  semantic: ['type', 'label', 'sublabel', 'tag', 'brand', 'icon', 'ports'],
+  semantic: ['type', 'label', 'sublabel', 'tag', 'brand', 'icon', 'ports', 'faceplate'],
   evidence: ['sources'],
   geometry: ['row', 'col', 'pos', 'size'],
 };
