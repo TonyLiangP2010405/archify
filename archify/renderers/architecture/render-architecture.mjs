@@ -1332,6 +1332,34 @@ function validateArchitecture() {
         problems.push(message);
       }
       const [start, end] = [routed.points[0], routed.points[routed.points.length - 1]];
+      // The stub from the panel edge into the jack is drawn at the port's own
+      // exit point. If the cable stops anywhere else, the artifact shows a
+      // cable diving under the panel plus a detached arrow at the jack.
+      for (const [endpoint, componentId, portId] of [
+        ['source', conn.from, conn.fromPort],
+        ['target', conn.to, conn.toPort],
+      ]) {
+        const port = portId ? faceplateModels.get(componentId)?.ports.get(portId) : null;
+        if (!port) continue;
+        const tip = endpoint === 'source' ? start : end;
+        const gap = Math.hypot(tip[0] - port.point[0], tip[1] - port.point[1]);
+        if (gap <= 2) continue;
+        const message = `Connection "${conn.id || `${conn.from}->${conn.to}`}" stops ${Math.round(gap)}px away from the "${portId}" exit on "${componentId}" — the stub is drawn at the jack, so the cable appears to dive under the panel and the arrow sits detached.`;
+        diagnostics.push({
+          code: 'architecture/cable-stub-gap', severity: 'error', message,
+          subject: {
+            diagramType: 'architecture', collection: 'connections',
+            index: asArray(arch.connections).indexOf(conn), ...(conn.id ? { id: conn.id } : {}),
+            nodeId: componentId, portId,
+          },
+          evidence: { endpoint, gap: Math.round(gap), cableEnd: tip, portExit: port.point, side: port.side },
+          supportedFixes: [
+            `let the router approach the "${portId}" exit: drop the harmful via points on this connection`,
+            'or pin fromSide/toSide so the cable reaches the jack from its own edge',
+          ],
+        });
+        problems.push(message);
+      }
       const distance = Math.hypot(end[0] - start[0], end[1] - start[1]);
       if (distance < 24 && conn.from === conn.to) {
         // "Move the components apart" cannot be executed for a self-loop; the
