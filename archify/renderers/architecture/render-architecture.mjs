@@ -856,7 +856,7 @@ function validateArchitecture() {
         evidence: { width: Math.round(c.width), sourceWidth, renderedScale: Math.round(renderedScale * 1000) / 1000, minWidth },
         supportedFixes: [
           `widen component "${c.id}" to at least ${minWidth}px`,
-          '760–820px keeps a photographed panel legible in the delivered diagram',
+          '620–700px keeps a photographed panel legible without letting it dominate the diagram',
         ],
       });
       problems.push(message);

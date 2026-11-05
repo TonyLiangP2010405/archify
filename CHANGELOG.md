@@ -8,7 +8,7 @@ Development identity: `v3.3.0-dev.0`
 
 ### Added
 
-- **Readable faceplate panels.** A panel photo's printed silkscreen is a fixed fraction of the image, so a faceplate node narrower than 480px now fails validation as `architecture/faceplate-too-small` on the showcase profile, naming the rendered scale and the width that would clear the gate. Aim for 760–820px on photographed panels.
+- **Readable faceplate panels.** A panel photo's printed silkscreen is a fixed fraction of the image, so a faceplate node narrower than 45% of the source width now fails validation as `architecture/faceplate-too-small` on the showcase profile, naming the rendered scale and the width that would clear the gate. Aim for 620–700px on photographed panels: wide enough for the silkscreen, small enough that the photo stays context instead of becoming the subject.
 - **Cables must reach their jack.** `architecture/cable-stub-gap` fails a connection whose route stops anywhere but the port exit where its stub is drawn — otherwise the artifact shows a cable diving under the panel and a detached arrow at the jack. Pin `fromSide`/`toSide` or drop the harmful `via` points.
 
 ### Changed
