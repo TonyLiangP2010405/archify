@@ -134,14 +134,30 @@ function faceplateEdge(side, port, box) {
   }
 }
 
-function nearestFaceplateSide(port, box) {
+function nearestFaceplateSide(port, box, counterparts = []) {
   const distances = {
     left: port.x * box.width,
     right: (1 - port.x) * box.width,
     top: port.y * box.height,
     bottom: (1 - port.y) * box.height,
   };
-  return FACEPLATE_EDGES.reduce((best, side) => (distances[side] < distances[best] ? side : best), 'top');
+  const nearest = FACEPLATE_EDGES.reduce((best, side) => (distances[side] < distances[best] ? side : best), 'top');
+  if (nearest !== 'top' && nearest !== 'bottom') return nearest;
+  // On a wide, shallow panel a jack near the vertical middle is a pixel or two
+  // from both edges, and that coin flip decides whether the cable approaches
+  // from above or below. Flip it wrong and the route has to wrap around the
+  // chassis, which reads as a cable passing behind the device. Follow the
+  // cables instead: approach from the side the connected nodes sit on.
+  if (Math.abs(distances.top - distances.bottom) > Math.max(6, box.height * 0.12)) return nearest;
+  if (!counterparts.length) return nearest;
+  const middle = box.y + box.height / 2;
+  if (counterparts.every(([, y]) => y < middle)) return 'top';
+  if (counterparts.every(([, y]) => y > middle)) return 'bottom';
+  return nearest;
+}
+
+function faceplateSideFor(port, box, counterparts) {
+  return port.side || nearestFaceplateSide(port, box, counterparts);
 }
 
 function faceplateCaptionRect(component) {
@@ -164,6 +180,20 @@ function faceplateFailure(code, message, component, evidence, supportedFixes) {
 const faceplateModels = new Map();
 const faceplateDiagnostics = [];
 const faceplateProblems = [];
+// Where each faceplate jack's cables come from, so a jack near the vertical
+// middle can face its cables instead of a coin-flip edge.
+const faceplateCounterparts = new Map();
+const rememberCounterpart = (componentId, portId, counterpart) => {
+  if (!componentId || !portId || !counterpart) return;
+  const key = `${componentId}\u0000${portId}`;
+  const list = faceplateCounterparts.get(key) || [];
+  list.push([counterpart.x + counterpart.width / 2, counterpart.y + counterpart.height / 2]);
+  faceplateCounterparts.set(key, list);
+};
+for (const conn of asArray(arch.connections)) {
+  rememberCounterpart(conn.from, conn.fromPort, components.get(conn.to));
+  rememberCounterpart(conn.to, conn.toPort, components.get(conn.from));
+}
 for (const component of components.values()) {
   if (!component.faceplate) continue;
   const { faceplate } = component;
@@ -232,7 +262,7 @@ for (const component of components.values()) {
       faceplateProblems.push(message);
       continue;
     }
-    const side = port.side || nearestFaceplateSide(port, component);
+    const side = faceplateSideFor(port, component, faceplateCounterparts.get(`${component.id}\u0000${port.id}`) || []);
     const foot = faceplateEdge(side, port, component);
     const nudged = nudgeEdgePoint(side, foot);
     if (!nudged) exhaustedExits.push(port.id);
@@ -993,7 +1023,11 @@ function validateArchitecture() {
       const namedPorts = componentPorts(component);
       const platePorts = (component.faceplate?.ports || []).map((port) => ({
         ...port,
-        side: port.side || nearestFaceplateSide(port, component),
+        side: faceplateSideFor(port, component, [(conn.from === componentId
+          ? components.get(conn.to)
+          : components.get(conn.from))].filter(Boolean).map((other) => [
+          other.x + other.width / 2, other.y + other.height / 2,
+        ])),
       }));
       // Holes answer unknown-port and one-cable-per-hole; only named ports own
       // a side, so a faceplate never triggers side exclusivity.
