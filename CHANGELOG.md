@@ -4,6 +4,17 @@ All notable changes are documented here. Format loosely follows [Keep a Changelo
 
 ## [Unreleased]
 
+Development identity: `v3.3.0-dev.0`
+
+### Added
+
+- **Readable faceplate panels.** A panel photo's printed silkscreen is a fixed fraction of the image, so a faceplate node narrower than 480px now fails validation as `architecture/faceplate-too-small` on the showcase profile, naming the rendered scale and the width that would clear the gate. Aim for 760–820px on photographed panels.
+
+### Changed
+
+- **Thicker relationship lines.** Architecture relationships default to 2.4 (2.8 for emphasis) instead of 1.5/1.8, in the renderer, the router and arrowhead clearance alike. An authored `width` still wins.
+- **Mid-panel jacks follow their cables.** A jack near the vertical middle of a wide, shallow panel used a one-pixel margin to pick its edge, so a cable arriving from the other side wrapped around the chassis. When the two vertical edges are within 6px or 12% of panel height, the side now follows the connected nodes; an authored `side` still wins.
+
 ## [3.2.0] — 2026-10-18
 
 ### Added

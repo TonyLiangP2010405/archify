@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="generator" content="archify 3.2.0">
+  <meta name="generator" content="archify 3.3.0-dev.0">
   <meta name="archify-reader-contract" content="declared-wide-v1">
   <title>Production Deployment Ownership Diagram</title>
   <script>
@@ -5260,29 +5260,29 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 
         <!-- Connection paths (before components for correct z-order) -->
         <g data-graph-role="automatic-crossover" style="--step:0">
-          <path data-graph-role="automatic-crossover-underlay" d="M 160 330 L 230 330" fill="none" stroke="var(--mask)" stroke-width="5.8" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
-          <path data-edge-from="clients" data-edge-to="edge" data-edge-label="HTTPS" data-edge-key="0" data-composition-points="160,330;230,330" data-composition-crossover="halo" data-composition-independent="true" d="M 160 330 L 230 330" class="a-emphasis" data-animate="edge" style="--step:0" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+          <path data-graph-role="automatic-crossover-underlay" d="M 160 330 L 230 330" fill="none" stroke="var(--mask)" stroke-width="6.8" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="clients" data-edge-to="edge" data-edge-label="HTTPS" data-edge-key="0" data-composition-points="160,330;230,330" data-composition-crossover="halo" data-composition-independent="true" d="M 160 330 L 230 330" class="a-emphasis" data-animate="edge" style="--step:0" stroke-width="2.8" marker-end="url(#arrowhead-emphasis)"/>
         </g>
         <g data-graph-role="automatic-crossover" style="--step:1">
-          <path data-graph-role="automatic-crossover-underlay" d="M 356 330 L 430 330" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
-          <path data-edge-from="edge" data-edge-to="gateway" data-edge-label="mTLS" data-edge-key="1" data-composition-points="356,330;430,330" data-composition-crossover="halo" data-composition-independent="true" d="M 356 330 L 430 330" class="a-security" data-animate="edge" style="--step:1" stroke-width="1.5" marker-end="url(#arrowhead-security)"/>
+          <path data-graph-role="automatic-crossover-underlay" d="M 356 330 L 430 330" fill="none" stroke="var(--mask)" stroke-width="6.4" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="edge" data-edge-to="gateway" data-edge-label="mTLS" data-edge-key="1" data-composition-points="356,330;430,330" data-composition-crossover="halo" data-composition-independent="true" d="M 356 330 L 430 330" class="a-security" data-animate="edge" style="--step:1" stroke-width="2.4" marker-end="url(#arrowhead-security)"/>
         </g>
-        <path data-edge-from="gateway" data-edge-to="api_a" data-edge-label="VPC route" data-edge-key="2" data-composition-points="558,330;594,330;594,226;630,226" d="M 558 330 L 586 330 Q 594 330 594 322 L 594 234 Q 594 226 602 226 L 630 226" class="a-emphasis" data-animate="edge" style="--step:2" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
-        <path data-edge-from="gateway" data-edge-to="api_b" data-edge-label="VPC route" data-edge-key="3" data-composition-points="558,330;594,330;594,436;630,436" d="M 558 330 L 586 330 Q 594 330 594 338 L 594 428 Q 594 436 602 436 L 630 436" class="a-emphasis" data-animate="edge" style="--step:3" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
-        <path data-edge-from="api_a" data-edge-to="redis" data-edge-label="cache" data-edge-key="4" data-composition-points="766,226;840,226" d="M 766 226 L 840 226" class="a-default" data-animate="edge" style="--step:4" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-        <path data-edge-from="api_b" data-edge-to="postgres" data-edge-label="SQL" data-edge-key="5" data-composition-points="766,436;840,436" d="M 766 436 L 840 436" class="a-default" data-animate="edge" style="--step:5" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-        <path data-edge-from="api_a" data-edge-to="events" data-edge-label="publish" data-edge-key="6" data-composition-points="698,195;698,170;1103,170;1103,300" d="M 698 195 L 698 178 Q 698 170 706 170 L 1095 170 Q 1103 170 1103 178 L 1103 300" class="a-dashed" data-animate="edge" style="--step:6" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
-        <path data-edge-from="api_b" data-edge-to="events" data-edge-key="7" data-composition-points="698,405;698,380;1103,380;1103,360" d="M 698 405 L 698 388 Q 698 380 706 380 L 1095 380 Q 1103 380 1103 372 L 1103 360" class="a-dashed" data-animate="edge" style="--step:7" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <path data-edge-from="gateway" data-edge-to="api_a" data-edge-label="VPC route" data-edge-key="2" data-composition-points="558,330;594,330;594,226;630,226" d="M 558 330 L 586 330 Q 594 330 594 322 L 594 234 Q 594 226 602 226 L 630 226" class="a-emphasis" data-animate="edge" style="--step:2" stroke-width="2.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-from="gateway" data-edge-to="api_b" data-edge-label="VPC route" data-edge-key="3" data-composition-points="558,330;594,330;594,436;630,436" d="M 558 330 L 586 330 Q 594 330 594 338 L 594 428 Q 594 436 602 436 L 630 436" class="a-emphasis" data-animate="edge" style="--step:3" stroke-width="2.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-from="api_a" data-edge-to="redis" data-edge-label="cache" data-edge-key="4" data-composition-points="766,226;840,226" d="M 766 226 L 840 226" class="a-default" data-animate="edge" style="--step:4" stroke-width="2.4" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="api_b" data-edge-to="postgres" data-edge-label="SQL" data-edge-key="5" data-composition-points="766,436;840,436" d="M 766 436 L 840 436" class="a-default" data-animate="edge" style="--step:5" stroke-width="2.4" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="api_a" data-edge-to="events" data-edge-label="publish" data-edge-key="6" data-composition-points="698,195;698,170;1103,170;1103,300" d="M 698 195 L 698 178 Q 698 170 706 170 L 1095 170 Q 1103 170 1103 178 L 1103 300" class="a-dashed" data-animate="edge" style="--step:6" stroke-width="2.4" marker-end="url(#arrowhead-dashed)"/>
+        <path data-edge-from="api_b" data-edge-to="events" data-edge-key="7" data-composition-points="698,405;698,380;1103,380;1103,360" d="M 698 405 L 698 388 Q 698 380 706 380 L 1095 380 Q 1103 380 1103 372 L 1103 360" class="a-dashed" data-animate="edge" style="--step:7" stroke-width="2.4" marker-end="url(#arrowhead-dashed)"/>
         <g data-graph-role="automatic-crossover" style="--step:8">
-          <path data-graph-role="automatic-crossover-underlay" d="M 1166 330 L 1190 330" fill="none" stroke="var(--mask)" stroke-width="5.8" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
-          <path data-edge-from="events" data-edge-to="worker" data-edge-key="8" data-composition-points="1166,330;1190,330" data-composition-crossover="halo" data-composition-independent="true" d="M 1166 330 L 1190 330" class="a-emphasis" data-animate="edge" style="--step:8" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+          <path data-graph-role="automatic-crossover-underlay" d="M 1166 330 L 1190 330" fill="none" stroke="var(--mask)" stroke-width="6.8" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="events" data-edge-to="worker" data-edge-key="8" data-composition-points="1166,330;1190,330" data-composition-crossover="halo" data-composition-independent="true" d="M 1166 330 L 1190 330" class="a-emphasis" data-animate="edge" style="--step:8" stroke-width="2.8" marker-end="url(#arrowhead-emphasis)"/>
         </g>
-        <path data-edge-from="postgres" data-edge-to="replica" data-edge-label="cross-region WAL" data-edge-key="9" data-composition-points="903,467;903,553.5;1103,553.5;1103,640" d="M 903 467 L 903 545.5 Q 903 553.5 911 553.5 L 1095 553.5 Q 1103 553.5 1103 561.5 L 1103 640" class="a-security" data-animate="edge" style="--step:9" stroke-width="1.5" marker-end="url(#arrowhead-security)"/>
+        <path data-edge-from="postgres" data-edge-to="replica" data-edge-label="cross-region WAL" data-edge-key="9" data-composition-points="903,467;903,553.5;1103,553.5;1103,640" d="M 903 467 L 903 545.5 Q 903 553.5 911 553.5 L 1095 553.5 Q 1103 553.5 1103 561.5 L 1103 640" class="a-security" data-animate="edge" style="--step:9" stroke-width="2.4" marker-end="url(#arrowhead-security)"/>
         <g data-graph-role="automatic-crossover" style="--step:10">
-          <path data-graph-role="automatic-crossover-underlay" d="M 1253 360 L 1253 492" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
-          <path data-edge-from="worker" data-edge-to="audit" data-edge-label="evidence" data-edge-key="10" data-composition-points="1253,360;1253,492" data-composition-crossover="halo" data-composition-independent="true" d="M 1253 360 L 1253 492" class="a-dashed" data-animate="edge" style="--step:10" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+          <path data-graph-role="automatic-crossover-underlay" d="M 1253 360 L 1253 492" fill="none" stroke="var(--mask)" stroke-width="6.4" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="worker" data-edge-to="audit" data-edge-label="evidence" data-edge-key="10" data-composition-points="1253,360;1253,492" data-composition-crossover="halo" data-composition-independent="true" d="M 1253 360 L 1253 492" class="a-dashed" data-animate="edge" style="--step:10" stroke-width="2.4" marker-end="url(#arrowhead-dashed)"/>
         </g>
-        <path data-edge-from="worker" data-edge-to="observability" data-edge-label="OTLP" data-edge-key="11" data-composition-points="1253,300;1253,223.5;1253,223.5;1253,147" d="M 1253 300 L 1253 223.5 L 1253 223.5 L 1253 147" class="a-dashed" data-animate="edge" style="--step:11" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <path data-edge-from="worker" data-edge-to="observability" data-edge-label="OTLP" data-edge-key="11" data-composition-points="1253,300;1253,223.5;1253,223.5;1253,147" d="M 1253 300 L 1253 223.5 L 1253 223.5 L 1253 147" class="a-dashed" data-animate="edge" style="--step:11" stroke-width="2.4" marker-end="url(#arrowhead-dashed)"/>
 
         <!-- Components -->
         <g id="node-clients" data-node-id="clients" data-node-label="Customers" tabindex="0" role="button" aria-label="Focus Customers, web + mobile, Architecture component" aria-pressed="false" data-node-kind="external" data-node-sublabel="web + mobile" data-node-context="Architecture component">
@@ -5436,6 +5436,9 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         <text data-detail="context" x="1253" y="130" class="t-muted" font-size="9" text-anchor="middle">metrics + traces</text>
         <text data-detail="fine" x="1253" y="139" class="t-external" font-size="7" text-anchor="middle">SRE</text>
         </g>
+
+        <!-- Cables entering a faceplate hole (above the panel image) -->
+
 
         <!-- Connection labels -->
         <g data-detail="context" data-edge-from="clients" data-edge-to="edge" data-edge-label="HTTPS" data-edge-key="0">
