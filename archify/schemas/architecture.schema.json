@@ -53,6 +53,41 @@
           "items": false,
           "minItems": 2,
           "maxItems": 2
+        },
+        "sheet": {
+          "type": "object",
+          "description": "Opt-in deliverable sheet: a brand lockup in the header, a clean A4 page for print, and a footer line. Without this block the artifact behaves exactly as before.",
+          "additionalProperties": false,
+          "properties": {
+            "brand": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Brand name drawn beside the logo; doubles as the image alt text."
+            },
+            "logo": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["path"],
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Logo file (PNG, JPEG or SVG) resolved against this JSON and embedded as a data URI, so the delivered HTML stays standalone."
+                },
+                "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+                "height": {
+                  "type": "number",
+                  "minimum": 12,
+                  "maximum": 96,
+                  "description": "Rendered logo height in CSS pixels; 28 by default."
+                }
+              }
+            },
+            "footer": {
+              "type": "string",
+              "description": "Small line printed at the foot of the page, such as a version or a date."
+            }
+          }
         }
       }
     },

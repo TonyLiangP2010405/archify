@@ -511,6 +511,41 @@ h1 {
   margin-left: 1.375rem;
 }
 
+/* Deliverable sheet: the brand lockup sits opposite the title, and the footer
+   closes the document. Both are static markup so the raster export and print
+   stylesheet can draw them without re-deriving anything. */
+html[data-sheet="true"] .header {
+  position: relative;
+  padding-right: 15rem;
+}
+
+.archify-sheet-brand {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.archify-sheet-logo { display: block; width: auto; }
+
+.archify-sheet-name {
+  font-size: 0.9375rem;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  color: var(--text);
+}
+
+.archify-sheet-footer {
+  margin-top: 1.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--panel-border);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  letter-spacing: 0.01em;
+}
+
 html[data-preset="signal-flow"] .header-row::after {
   content: attr(data-preset-badge-signal-flow);
   flex: none;
@@ -2905,6 +2940,40 @@ html[data-reader-rail="bottom"] .node-outline-item::after {
 @page { size: landscape; margin: 1.5cm; }
 
 @media print {
+  /* A deliverable sheet prints on A4 portrait, and its canvas is paper, not a
+     UI surface: the quiet dot field belongs to the interactive view. */
+  html[data-sheet="true"] { page: archify-sheet; }
+  @page archify-sheet {
+    size: A4 portrait;
+    margin: 12mm;
+  }
+  html[data-sheet="true"] .header { padding-right: 15rem; }
+  html[data-sheet="true"] .archify-sheet-brand { margin-left: 0; }
+  html[data-sheet="true"][data-preset="classic"] .diagram-container {
+    background: #ffffff;
+  }
+  /* One page, like a printed specification: the diagram keeps the top half and
+     the notes close under it instead of spilling a lone footer onto page two. */
+  html[data-sheet="true"] .diagram-container > svg { max-height: 104mm; }
+  html[data-sheet="true"] .cards {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  html[data-sheet="true"] .card { padding: 10px 12px; }
+  html[data-sheet="true"] .card-header { margin-bottom: 4px; }
+  html[data-sheet="true"] .card h3 { font-size: 12.5px; }
+  html[data-sheet="true"] .card li {
+    font-size: 11px;
+    line-height: 1.45;
+    margin-bottom: 3px;
+  }
+  html[data-sheet="true"] .archify-sheet-footer {
+    margin-top: 10px;
+    padding-top: 6px;
+    font-size: 9.5px;
+  }
+
   /* Force the FULL light palette — including component fills/strokes and
      lane/arrow colors — so printing from dark theme doesn't put neon
      strokes and translucent dark fills on white paper. */

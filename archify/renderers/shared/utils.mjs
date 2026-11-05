@@ -111,6 +111,29 @@ export function renderSemanticSigil(kind, { x, y, size = SEMANTIC_SIGIL_SIZE, ic
           </g>`;
 }
 
+// A deliverable sheet carries the brand lockup in the header and an optional
+// footer line. Both are static markup so the raster export and the print
+// stylesheet can rely on them being present.
+function renderSheetBrand(sheet) {
+  if (!sheet) return '';
+  const parts = [];
+  if (sheet.logoDataUri) {
+    const height = Number.isFinite(sheet.height) ? sheet.height : 28;
+    parts.push(`<img class="archify-sheet-logo" src="${sheet.logoDataUri}" alt="${sheet.brand ? esc(sheet.brand) : ''}" style="height:${height}px">`);
+  } else if (sheet.brand) {
+    // A wordmark logo already carries the name; only spell it out when the
+    // lockup is text-only.
+    parts.push(`<span class="archify-sheet-name">${esc(sheet.brand)}</span>`);
+  }
+  return parts.length ? `<div class="archify-sheet-brand">${parts.join('')}</div>` : '';
+}
+
+function renderSheetFooter(sheet) {
+  if (!sheet || !sheet.footer) return '';
+  return `
+    <footer class="archify-sheet-footer">${esc(sheet.footer)}</footer>`;
+}
+
 export function renderCards(cards) {
   const list = Array.isArray(cards) ? cards : [];
   return `    <!-- Info Cards -->
@@ -155,6 +178,7 @@ export function applyTemplate(template, {
   locale,
   visualPreset = 'classic',
   sourceEvidence = null,
+  sheet = null,
 }) {
   if (!SVG_SLOT_RE.test(template)) {
     throw new Error('applyTemplate: template missing ARCHIFY:SVG_SLOT sentinel');
@@ -184,17 +208,19 @@ export function applyTemplate(template, {
   const renderedSubtitle = typeof subtitle === 'string' && subtitle.trim()
     ? `<p class="subtitle">${esc(subtitle)}</p>`
     : '';
+  const sheetBrand = renderSheetBrand(sheet);
+  const sheetFooter = renderSheetFooter(sheet);
   const i18nData = `    <script id="archify-i18n-data" type="application/json">${i18nJson}</script>`;
   return localizeTemplate(template, resolvedLocale)
     .replace(I18N_PLACEHOLDER, () => i18nData)
-    .replace(TEMPLATE_PLACEHOLDERS[0], () => `<html lang="${esc(resolvedLocale)}" data-theme="dark" data-preset="${esc(visualPreset)}">`)
+    .replace(TEMPLATE_PLACEHOLDERS[0], () => `<html lang="${esc(resolvedLocale)}" data-theme="dark" data-preset="${esc(visualPreset)}"${sheet ? ' data-sheet="true"' : ''}>`)
     .replace(TEMPLATE_PLACEHOLDERS[1], () => `<title>${esc(translateMessage(resolvedLocale, 'page.title', { title }))}</title>`)
     .replace(TEMPLATE_PLACEHOLDERS[2], () => `<h1>${esc(title)}</h1>`)
-    .replace(SUBTITLE_SLOT_RE, (_match, indent, newline = '') => renderedSubtitle
-      ? `${indent}${renderedSubtitle}${newline}`
+    .replace(SUBTITLE_SLOT_RE, (_match, indent, newline = '') => (renderedSubtitle || sheetBrand)
+      ? `${indent}${renderedSubtitle}${sheetBrand ? `${indent}${sheetBrand}` : ''}${newline}`
       : '')
     .replace(SVG_SLOT_RE, () => svg)
-    .replace(CARDS_SLOT_RE, () => cards)
+    .replace(CARDS_SLOT_RE, () => `${cards}${sheetFooter}`)
     .replace(SOURCE_EVIDENCE_PLACEHOLDER, () => sourceEvidence
       ? `    <script id="archify-source-evidence-data" type="application/json">${sourceEvidenceJson}</script>`
       : '');

@@ -247,7 +247,57 @@ function stageRenderedHtml(outputPath, html, mode) {
 }
 
 // Common CLI tail: fill the template and write the standalone HTML file.
-export function writeDiagram({ outPath, template, diagramType, meta, svg, cards, sourceEvidence = null }) {
+//
+// `meta.sheet` marks the artifact as a deliverable sheet. The logo is inlined
+// as a data URI so the file stays standalone after it leaves this machine; a
+// missing or altered logo file stops the render instead of shipping a sheet
+// with a blank corner.
+const SHEET_LOGO_TYPES = new Map([
+  ['.png', 'image/png'],
+  ['.jpg', 'image/jpeg'],
+  ['.jpeg', 'image/jpeg'],
+  ['.svg', 'image/svg+xml'],
+  ['.webp', 'image/webp'],
+]);
+
+export function resolveSheet(sheet, authoredDir) {
+  if (!sheet) return null;
+  const resolved = { brand: sheet.brand || '', footer: sheet.footer || '', height: sheet.logo?.height };
+  if (!sheet.logo) return resolved;
+  const logoPath = path.resolve(authoredDir || process.cwd(), sheet.logo.path);
+  const mime = SHEET_LOGO_TYPES.get(path.extname(logoPath).toLowerCase());
+  if (!mime) {
+    throwDiagnosticError(`Sheet logo "${sheet.logo.path}" must be a PNG, JPEG, WebP or SVG file.`, [{
+      code: 'architecture/sheet-logo-type',
+      message: `Sheet logo "${sheet.logo.path}" must be a PNG, JPEG, WebP or SVG file.`,
+      subject: { sheetLogo: sheet.logo.path },
+      supportedFixes: ['point sheet.logo.path at a PNG, JPEG, WebP or SVG file'],
+    }]);
+  }
+  let bytes;
+  try {
+    bytes = fs.readFileSync(logoPath);
+  } catch (error) {
+    throwDiagnosticError(`Sheet logo "${sheet.logo.path}" could not be read: ${error.code || error.message}`, [{
+      code: 'architecture/sheet-logo-missing',
+      message: `Sheet logo "${sheet.logo.path}" could not be read: ${error.code || error.message}`,
+      subject: { sheetLogo: sheet.logo.path },
+      supportedFixes: ['check sheet.logo.path, which resolves against the candidate JSON'],
+    }]);
+  }
+  if (sheet.logo.sha256 && createHash('sha256').update(bytes).digest('hex') !== sheet.logo.sha256) {
+    throwDiagnosticError(`Sheet logo "${sheet.logo.path}" does not match the authored sha256.`, [{
+      code: 'architecture/sheet-logo-hash',
+      message: `Sheet logo "${sheet.logo.path}" does not match the authored sha256.`,
+      subject: { sheetLogo: sheet.logo.path },
+      supportedFixes: ['recompute the sha256 of the logo file'],
+    }]);
+  }
+  resolved.logoDataUri = `data:${mime};base64,${bytes.toString('base64')}`;
+  return resolved;
+}
+
+export function writeDiagram({ outPath, template, diagramType, meta, svg, cards, sourceEvidence = null, authoredDir = null }) {
   if (!START_TYPES.has(diagramType)) throw new Error(`writeDiagram: unknown diagram type ${JSON.stringify(diagramType)}`);
   const outputGuard = outputPathGuards.get(outPath);
   const html = applyTemplate(template, {
@@ -258,6 +308,7 @@ export function writeDiagram({ outPath, template, diagramType, meta, svg, cards,
     locale: meta.locale,
     visualPreset: meta.visual_preset || 'classic',
     sourceEvidence,
+    sheet: resolveSheet(meta.sheet, authoredDir),
   });
   let candidatePath;
   let candidateIdentity;

@@ -1808,5 +1808,6 @@ if (layoutJsonMode) {
     svg: renderSvg(),
     cards: arch.cards,
     sourceEvidence,
+    authoredDir,
   });
 }
