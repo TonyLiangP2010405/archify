@@ -752,7 +752,7 @@ export function createRouter(components, connections = [], {
 
   const pathCache = new Map();
   const selectedSides = new Map();
-  const stroke = (relation) => relation.width || (relation.variant === 'emphasis' ? 1.8 : 1.5);
+  const stroke = (relation) => relation.width || (relation.variant === 'emphasis' ? 2.8 : 2.4);
   const markerSpacing = (left, right) => 3.5 * (stroke(left) + stroke(right));
   const portSpacing = (left, right) => Math.max(14, markerSpacing(left, right) + 3.5);
   function fanOutSide(conn, endpoint) {

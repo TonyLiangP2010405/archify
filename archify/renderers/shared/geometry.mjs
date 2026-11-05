@@ -835,7 +835,7 @@ export function collectArrowheadCollisions({ routedRelations, allowShortWorkflow
     const vertical = Math.abs(tip[0] - previous[0]) < 0.0001;
     const axis = vertical ? 0 : 1;
     const direction = Math.sign(tip[1 - axis] - previous[1 - axis]);
-    const halfWidth = 3.5 * (entry.relation.width || (entry.relation.variant === 'emphasis' ? 1.8 : 1.5));
+    const halfWidth = 3.5 * (entry.relation.width || (entry.relation.variant === 'emphasis' ? 2.8 : 2.4));
     const key = `${entry.relation.to}\u0000${axis}\u0000${direction}`;
     const siblings = incoming.get(key) || [];
     const current = { ...entry, tip, halfWidth };

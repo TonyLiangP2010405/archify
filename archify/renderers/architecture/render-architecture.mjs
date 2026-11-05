@@ -1529,7 +1529,7 @@ function renderBoundaryLabel(b, index) {
 function renderConnectionPath(conn, index) {
   const [cls, marker] = arrowClassMap[conn.variant || 'default'] || arrowClassMap.default;
   const routed = pathFor(conn);
-  const strokeWidth = conn.width || (conn.variant === 'emphasis' ? 1.8 : 1.5);
+  const strokeWidth = conn.width || (conn.variant === 'emphasis' ? 2.8 : 2.4);
   const automaticRoute = hasAutomaticRouteGeometry(conn);
   const underlay = automaticRoute
     ? `          <path data-graph-role="automatic-crossover-underlay" d="${routed.d}" fill="none" stroke="var(--mask)" stroke-width="${strokeWidth + 4}" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>\n`
@@ -1558,7 +1558,7 @@ function renderPortStubs() {
   const parts = [];
   for (const conn of asArray(arch.connections)) {
     const [cls, marker] = arrowClassMap[conn.variant || 'default'] || arrowClassMap.default;
-    const strokeWidth = conn.width || (conn.variant === 'emphasis' ? 1.8 : 1.5);
+    const strokeWidth = conn.width || (conn.variant === 'emphasis' ? 2.8 : 2.4);
     for (const endpoint of ['from', 'to']) {
       const port = faceplatePortEntry(
         endpoint === 'from' ? conn.from : conn.to,
