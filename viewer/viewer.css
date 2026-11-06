@@ -4813,6 +4813,20 @@ svg[data-preset="blueprint"][data-relationship-preview-active] [data-relationshi
 .c-region         { fill: rgba(251, 191, 36, 0.05); stroke: var(--cloud-stroke); stroke-dasharray: 8,4; }
 .c-lane           { fill: var(--lane-fill); stroke: var(--lane-stroke); stroke-dasharray: 6,6; }
 
+/* A zone name is read before anything inside it, so it gets a filled pill
+   instead of a bare word sitting on the frame: on paper a 9px amber caption
+   disappeared next to the device photos. */
+g[data-graph-role="structural-frame-label"] rect[data-graph-role="structural-frame-label-mask"] {
+  fill: color-mix(in srgb, var(--cloud-stroke) 16%, #ffffff);
+  stroke: var(--cloud-stroke);
+  stroke-width: 1.2;
+  rx: 6px;
+}
+g[data-graph-role="structural-frame-label"] text[data-boundary-label] {
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
 /* Live plays one relay per cycle: a comet (halo, tail, head) leaves each
    source when the signal reaches it, travels at one shared speed, leaves a
    soft wake, and lands as a ripple while its target glows. Downstream edges
