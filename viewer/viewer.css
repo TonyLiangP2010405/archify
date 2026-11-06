@@ -546,6 +546,101 @@ html[data-sheet="true"] .header {
   letter-spacing: 0.01em;
 }
 
+/* Page furniture under the diagram: numbered notes, a port cross-reference
+   table, the design rationale, and the cable legend. On screen it reads as a
+   document appendix; in print it becomes the lower half of the sheet. */
+.archify-sheet-page { margin-top: 2rem; }
+
+.archify-sheet-heading {
+  margin: 0 0 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--text);
+}
+
+.archify-sheet-notes-block { margin-bottom: 1.75rem; }
+
+.archify-sheet-notes {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+  line-height: 1.7;
+}
+
+.archify-sheet-notes li { margin-bottom: 0.35rem; }
+
+.archify-sheet-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.archify-sheet-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+}
+
+.archify-sheet-table th {
+  text-align: left;
+  font-weight: 700;
+  color: var(--text);
+  padding: 0.35rem 0.5rem 0.35rem 0;
+  border-bottom: 1px solid var(--text-dim, #cbd5e1);
+}
+
+.archify-sheet-table td {
+  padding: 0.28rem 0.5rem 0.28rem 0;
+  color: var(--text-muted);
+  border-bottom: 1px solid color-mix(in srgb, var(--panel-border) 55%, transparent);
+  vertical-align: top;
+}
+
+.archify-sheet-design ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  line-height: 1.75;
+}
+
+.archify-sheet-design li { margin-bottom: 0.3rem; }
+
+.archify-sheet-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin: 1.75rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.archify-sheet-legend li { display: flex; align-items: center; gap: 0.45rem; }
+
+.archify-sheet-chip {
+  width: 16px;
+  height: 0;
+  border-top: 3px solid var(--chip, currentColor);
+  border-radius: 2px;
+}
+
+.archify-sheet-chip-dashed { border-top-style: dashed; }
+
+.archify-sheet-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.archify-sheet-logo-footer { display: block; width: auto; }
+
 html[data-preset="signal-flow"] .header-row::after {
   content: attr(data-preset-badge-signal-flow);
   flex: none;
@@ -2954,24 +3049,40 @@ html[data-reader-rail="bottom"] .node-outline-item::after {
   }
   /* One page, like a printed specification: the diagram keeps the top half and
      the notes close under it instead of spilling a lone footer onto page two. */
-  html[data-sheet="true"] .diagram-container > svg { max-height: 104mm; }
-  html[data-sheet="true"] .cards {
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-top: 12px;
+  html[data-sheet="true"] .diagram-container > svg { max-height: 108mm; }
+  html[data-sheet="true"] .cards { display: none; }
+  html[data-sheet="true"] .archify-sheet-page { margin-top: 6mm; }
+  html[data-sheet="true"] .archify-sheet-heading {
+    font-size: 8.5pt;
+    margin-bottom: 1.5mm;
   }
-  html[data-sheet="true"] .card { padding: 10px 12px; }
-  html[data-sheet="true"] .card-header { margin-bottom: 4px; }
-  html[data-sheet="true"] .card h3 { font-size: 12.5px; }
-  html[data-sheet="true"] .card li {
-    font-size: 11px;
-    line-height: 1.45;
-    margin-bottom: 3px;
+  html[data-sheet="true"] .archify-sheet-notes-block { margin-bottom: 5mm; }
+  html[data-sheet="true"] .archify-sheet-notes {
+    font-size: 7.4pt;
+    line-height: 1.6;
+    padding-left: 5mm;
+  }
+  html[data-sheet="true"] .archify-sheet-notes li { margin-bottom: 1mm; }
+  html[data-sheet="true"] .archify-sheet-columns {
+    grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+    gap: 8mm;
+  }
+  html[data-sheet="true"] .archify-sheet-table table { font-size: 7pt; }
+  html[data-sheet="true"] .archify-sheet-table th,
+  html[data-sheet="true"] .archify-sheet-table td { padding-top: 0.8mm; padding-bottom: 0.8mm; }
+  html[data-sheet="true"] .archify-sheet-design ul {
+    font-size: 6.8pt;
+    line-height: 1.62;
+  }
+  html[data-sheet="true"] .archify-sheet-legend {
+    margin-top: 5mm;
+    gap: 7mm;
+    font-size: 7pt;
   }
   html[data-sheet="true"] .archify-sheet-footer {
-    margin-top: 10px;
-    padding-top: 6px;
-    font-size: 9.5px;
+    margin-top: 6mm;
+    padding-top: 3mm;
+    font-size: 6.8pt;
   }
 
   /* Force the FULL light palette — including component fills/strokes and

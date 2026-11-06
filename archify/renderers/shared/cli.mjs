@@ -262,7 +262,15 @@ const SHEET_LOGO_TYPES = new Map([
 
 export function resolveSheet(sheet, authoredDir) {
   if (!sheet) return null;
-  const resolved = { brand: sheet.brand || '', footer: sheet.footer || '', height: sheet.logo?.height };
+  const resolved = {
+    brand: sheet.brand || '',
+    footer: sheet.footer || '',
+    height: sheet.logo?.height,
+    notes: sheet.notes || null,
+    table: sheet.table || null,
+    design: sheet.design || null,
+    legend: sheet.legend || null,
+  };
   if (!sheet.logo) return resolved;
   const logoPath = path.resolve(authoredDir || process.cwd(), sheet.logo.path);
   const mime = SHEET_LOGO_TYPES.get(path.extname(logoPath).toLowerCase());

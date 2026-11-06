@@ -129,9 +129,80 @@ function renderSheetBrand(sheet) {
 }
 
 function renderSheetFooter(sheet) {
-  if (!sheet || !sheet.footer) return '';
+  if (!sheet || (!sheet.footer && !sheet.logoDataUri)) return '';
+  const footerLogo = sheet.logoDataUri
+    ? `<img class="archify-sheet-logo archify-sheet-logo-footer" src="${sheet.logoDataUri}" alt="${sheet.brand ? esc(sheet.brand) : ''}" style="height:${(Number.isFinite(sheet.height) ? sheet.height : 28) + 4}px">`
+    : '';
+  const text = sheet.footer ? `<span>${esc(sheet.footer)}</span>` : '<span></span>';
   return `
-    <footer class="archify-sheet-footer">${esc(sheet.footer)}</footer>`;
+    <footer class="archify-sheet-footer">${text}${footerLogo}</footer>`;
+}
+
+// The page furniture a customer expects under the diagram: what the notes mean,
+// which port meets which device, why the design is shaped that way, and what
+// each cable colour stands for. Every block is optional and independent.
+function renderSheetPage(sheet) {
+  if (!sheet) return '';
+  const blocks = [];
+  const heading = (text) => `<h2 class="archify-sheet-heading">${esc(text)}</h2>`;
+
+  if (sheet.notes && sheet.notes.length) {
+    blocks.push(`      <section class="archify-sheet-notes-block">
+        ${heading('说明')}
+        <ol class="archify-sheet-notes">
+${sheet.notes.map((note) => `          <li>${esc(note)}</li>`).join('\n')}
+        </ol>
+      </section>`);
+  }
+
+  const hasTable = sheet.table && sheet.table.rows && sheet.table.rows.length;
+  const hasDesign = sheet.design && sheet.design.lines && sheet.design.lines.length;
+  if (hasTable || hasDesign) {
+    const parts = [];
+    if (hasTable) {
+      const { columns, rows } = sheet.table;
+      parts.push(`        <section class="archify-sheet-table">
+          ${heading(sheet.table.title || '端口对照')}
+          <table>
+            <thead>
+              <tr>${columns.map((column) => `<th>${esc(column)}</th>`).join('')}</tr>
+            </thead>
+            <tbody>
+${rows.map((row) => `              <tr>${row.map((cell) => `<td>${esc(cell ?? '')}</td>`).join('')}</tr>`).join('\n')}
+            </tbody>
+          </table>
+        </section>`);
+    }
+    if (hasDesign) {
+      parts.push(`        <section class="archify-sheet-design">
+          ${heading(sheet.design.title || '设计说明')}
+          <ul>
+${sheet.design.lines.map((line) => `            <li>${esc(line)}</li>`).join('\n')}
+          </ul>
+        </section>`);
+    }
+    blocks.push(`      <div class="archify-sheet-columns">
+${parts.join('\n')}
+      </div>`);
+  }
+
+  if (sheet.legend && sheet.legend.length) {
+    blocks.push(`      <ul class="archify-sheet-legend">
+${sheet.legend.map((entry) => {
+    const color = entry.color || 'currentColor';
+    const mark = entry.dashed
+      ? `<span class="archify-sheet-chip archify-sheet-chip-dashed" style="--chip:${esc(color)}"></span>`
+      : `<span class="archify-sheet-chip" style="--chip:${esc(color)}"></span>`;
+    return `        <li>${mark}${esc(entry.label)}</li>`;
+  }).join('\n')}
+      </ul>`);
+  }
+
+  if (!blocks.length) return '';
+  return `
+    <section class="archify-sheet-page">
+${blocks.join('\n')}
+    </section>`;
 }
 
 export function renderCards(cards) {
@@ -210,6 +281,7 @@ export function applyTemplate(template, {
     : '';
   const sheetBrand = renderSheetBrand(sheet);
   const sheetFooter = renderSheetFooter(sheet);
+  const sheetPage = renderSheetPage(sheet);
   const i18nData = `    <script id="archify-i18n-data" type="application/json">${i18nJson}</script>`;
   return localizeTemplate(template, resolvedLocale)
     .replace(I18N_PLACEHOLDER, () => i18nData)
@@ -220,7 +292,7 @@ export function applyTemplate(template, {
       ? `${indent}${renderedSubtitle}${sheetBrand ? `${indent}${sheetBrand}` : ''}${newline}`
       : '')
     .replace(SVG_SLOT_RE, () => svg)
-    .replace(CARDS_SLOT_RE, () => `${cards}${sheetFooter}`)
+    .replace(CARDS_SLOT_RE, () => `${cards}${sheetPage}${sheetFooter}`)
     .replace(SOURCE_EVIDENCE_PLACEHOLDER, () => sourceEvidence
       ? `    <script id="archify-source-evidence-data" type="application/json">${sourceEvidenceJson}</script>`
       : '');

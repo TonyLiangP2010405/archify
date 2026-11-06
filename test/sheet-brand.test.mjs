@@ -54,7 +54,7 @@ test('sheet: the logo is embedded in the artifact and the page is marked for pri
   assert.equal(run.status, 0, run.stderr);
   assert.match(run.html, /<html[^>]*data-sheet="true"/);
   assert.match(run.html, /class="archify-sheet-logo" src="data:image\/png;base64,/);
-  assert.match(run.html, /class="archify-sheet-footer">v1\.0</);
+  assert.match(run.html, /class="archify-sheet-footer"><span>v1\.0<\/span>/);
   // The wordmark carries the name, so it must not be printed twice.
   assert.doesNotMatch(run.html, /class="archify-sheet-name"/);
 });
@@ -84,6 +84,25 @@ test('sheet: a logo whose bytes do not match the authored sha256 stops the rende
   });
   assert.notEqual(run.status, 0);
   assert.match(run.stderr, /sha256/);
+});
+
+test('sheet: notes, the port table and the legend reach the artifact', () => {
+  const dir = workspace();
+  const run = render(dir, (doc) => {
+    doc.meta.sheet = {
+      brand: 'WyreStorm',
+      logo: { path: 'logo.png' },
+      notes: ['First note', 'Second note'],
+      table: { title: 'Ports', columns: ['Port', 'Device'], rows: [['HDMI IN 1', 'Laptop']] },
+      design: { title: 'Design', lines: ['Keep it short'] },
+      legend: [{ label: 'HDMI', color: '#9333ea' }, { label: 'Optional', color: '#94a3b8', dashed: true }],
+    };
+  });
+  assert.equal(run.status, 0, run.stderr);
+  assert.match(run.html, /<ol class="archify-sheet-notes">[\s\S]*First note[\s\S]*Second note/);
+  assert.match(run.html, /<th>Port<\/th><th>Device<\/th>/);
+  assert.match(run.html, /<td>HDMI IN 1<\/td><td>Laptop<\/td>/);
+  assert.match(run.html, /archify-sheet-chip archify-sheet-chip-dashed/);
 });
 
 test('sheet: a missing logo file stops the render instead of shipping a blank corner', () => {

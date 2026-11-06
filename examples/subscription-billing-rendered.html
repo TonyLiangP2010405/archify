@@ -715,6 +715,101 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       letter-spacing: 0.01em;
     }
 
+    /* Page furniture under the diagram: numbered notes, a port cross-reference
+       table, the design rationale, and the cable legend. On screen it reads as a
+       document appendix; in print it becomes the lower half of the sheet. */
+    .archify-sheet-page { margin-top: 2rem; }
+
+    .archify-sheet-heading {
+      margin: 0 0 0.5rem;
+      font-size: 0.8125rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: var(--text);
+    }
+
+    .archify-sheet-notes-block { margin-bottom: 1.75rem; }
+
+    .archify-sheet-notes {
+      margin: 0;
+      padding-left: 1.25rem;
+      color: var(--text-muted);
+      font-size: 0.8125rem;
+      line-height: 1.7;
+    }
+
+    .archify-sheet-notes li { margin-bottom: 0.35rem; }
+
+    .archify-sheet-columns {
+      display: grid;
+      grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+      gap: 2.5rem;
+      align-items: start;
+    }
+
+    .archify-sheet-table table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.75rem;
+    }
+
+    .archify-sheet-table th {
+      text-align: left;
+      font-weight: 700;
+      color: var(--text);
+      padding: 0.35rem 0.5rem 0.35rem 0;
+      border-bottom: 1px solid var(--text-dim, #cbd5e1);
+    }
+
+    .archify-sheet-table td {
+      padding: 0.28rem 0.5rem 0.28rem 0;
+      color: var(--text-muted);
+      border-bottom: 1px solid color-mix(in srgb, var(--panel-border) 55%, transparent);
+      vertical-align: top;
+    }
+
+    .archify-sheet-design ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      line-height: 1.75;
+    }
+
+    .archify-sheet-design li { margin-bottom: 0.3rem; }
+
+    .archify-sheet-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      margin: 1.75rem 0 0;
+      padding: 0;
+      list-style: none;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .archify-sheet-legend li { display: flex; align-items: center; gap: 0.45rem; }
+
+    .archify-sheet-chip {
+      width: 16px;
+      height: 0;
+      border-top: 3px solid var(--chip, currentColor);
+      border-radius: 2px;
+    }
+
+    .archify-sheet-chip-dashed { border-top-style: dashed; }
+
+    .archify-sheet-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .archify-sheet-logo-footer { display: block; width: auto; }
+
     html[data-preset="signal-flow"] .header-row::after {
       content: attr(data-preset-badge-signal-flow);
       flex: none;
@@ -3123,24 +3218,40 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       }
       /* One page, like a printed specification: the diagram keeps the top half and
          the notes close under it instead of spilling a lone footer onto page two. */
-      html[data-sheet="true"] .diagram-container > svg { max-height: 104mm; }
-      html[data-sheet="true"] .cards {
-        grid-template-columns: 1fr 1fr;
-        gap: 8px;
-        margin-top: 12px;
+      html[data-sheet="true"] .diagram-container > svg { max-height: 108mm; }
+      html[data-sheet="true"] .cards { display: none; }
+      html[data-sheet="true"] .archify-sheet-page { margin-top: 6mm; }
+      html[data-sheet="true"] .archify-sheet-heading {
+        font-size: 8.5pt;
+        margin-bottom: 1.5mm;
       }
-      html[data-sheet="true"] .card { padding: 10px 12px; }
-      html[data-sheet="true"] .card-header { margin-bottom: 4px; }
-      html[data-sheet="true"] .card h3 { font-size: 12.5px; }
-      html[data-sheet="true"] .card li {
-        font-size: 11px;
-        line-height: 1.45;
-        margin-bottom: 3px;
+      html[data-sheet="true"] .archify-sheet-notes-block { margin-bottom: 5mm; }
+      html[data-sheet="true"] .archify-sheet-notes {
+        font-size: 7.4pt;
+        line-height: 1.6;
+        padding-left: 5mm;
+      }
+      html[data-sheet="true"] .archify-sheet-notes li { margin-bottom: 1mm; }
+      html[data-sheet="true"] .archify-sheet-columns {
+        grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+        gap: 8mm;
+      }
+      html[data-sheet="true"] .archify-sheet-table table { font-size: 7pt; }
+      html[data-sheet="true"] .archify-sheet-table th,
+      html[data-sheet="true"] .archify-sheet-table td { padding-top: 0.8mm; padding-bottom: 0.8mm; }
+      html[data-sheet="true"] .archify-sheet-design ul {
+        font-size: 6.8pt;
+        line-height: 1.62;
+      }
+      html[data-sheet="true"] .archify-sheet-legend {
+        margin-top: 5mm;
+        gap: 7mm;
+        font-size: 7pt;
       }
       html[data-sheet="true"] .archify-sheet-footer {
-        margin-top: 10px;
-        padding-top: 6px;
-        font-size: 9.5px;
+        margin-top: 6mm;
+        padding-top: 3mm;
+        font-size: 6.8pt;
       }
 
       /* Force the FULL light palette — including component fills/strokes and
@@ -7168,35 +7279,80 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       // Notes close the sheet the way the printed page closes it: two columns
       // of authored cards under the diagram. A sheet without cards keeps the
       // old figure height.
-      var NOTE_GAP = 14;
-      var NOTE_PAD_X = 16;
-      var NOTE_PAD_Y = 12;
-      var NOTE_TITLE_SIZE = 13;
-      var NOTE_BODY_SIZE = 11;
-      var NOTE_TITLE_LINE = 18;
-      var NOTE_BODY_LINE = 16;
-      var NOTE_ITEM_GAP = 5;
-      var NOTE_BULLET = 12;
+      // Page furniture under the diagram: numbered notes, the port
+      // cross-reference table, the design rationale and the cable legend.
+      var SHEET_GAP = 22;
+      var SHEET_HEAD_SIZE = 14;
+      var SHEET_HEAD_RULE = 10;
+      var SHEET_NOTE_SIZE = 12.5;
+      var SHEET_NOTE_LINE = 19;
+      var SHEET_TABLE_SIZE = 12;
+      var SHEET_TABLE_LINE = 18;
+      var SHEET_TABLE_PAD = 7;
+      var SHEET_TABLE_COLUMNS = [0.4, 0.34, 0.26];
+      var SHEET_DESIGN_SIZE = 11.5;
+      var SHEET_DESIGN_LINE = 18;
+      var SHEET_LEGEND_SIZE = 12;
+      var SHEET_LEGEND_CHIP = 16;
+      var SHEET_NOTE_INDENT = 18;
+      var SHEET_FOOTER_SIZE = 11;
+      var SHEET_FOOTER_RULE = 12;
 
-      function sheetNotes() {
-        var out = [];
-        var cards = document.querySelectorAll('.cards .card');
-        Array.prototype.forEach.call(cards, function (card) {
-          var dotNode = card.querySelector('.card-dot');
-          var titleNode = card.querySelector('h3');
-          var items = [];
-          Array.prototype.forEach.call(card.querySelectorAll('li'), function (li) {
-            var value = li.textContent.replace(/\s+/g, ' ').trim();
-            if (value) items.push(value);
-          });
-          if (!titleNode || !items.length) return;
-          out.push({
-            dot: dotNode ? getComputedStyle(dotNode).backgroundColor : '',
-            title: titleNode.textContent.trim(),
-            items: items
-          });
+      // The page furniture is authored once in HTML; the raster export reads it
+      // back from the DOM so the PNG and the printed page cannot drift apart.
+      function sheetDocument() {
+        var page = document.querySelector('.archify-sheet-page');
+        if (!page) return null;
+        var doc = { notes: null, table: null, design: null, legend: null };
+        Array.prototype.forEach.call(page.querySelectorAll('.archify-sheet-notes li'), function (li) {
+          var value = li.textContent.replace(/\s+/g, ' ').trim();
+          if (!value) return;
+          doc.notes = doc.notes || [];
+          doc.notes.push(value);
         });
-        return out;
+        var table = page.querySelector('.archify-sheet-table table');
+        if (table) {
+          var columns = [];
+          Array.prototype.forEach.call(table.querySelectorAll('thead th'), function (th) {
+            columns.push(th.textContent.trim());
+          });
+          var rows = [];
+          Array.prototype.forEach.call(table.querySelectorAll('tbody tr'), function (tr) {
+            var cells = [];
+            Array.prototype.forEach.call(tr.querySelectorAll('td'), function (td) {
+              cells.push(td.textContent.trim());
+            });
+            rows.push(cells);
+          });
+          if (columns.length && rows.length) {
+            var heading = page.querySelector('.archify-sheet-table .archify-sheet-heading');
+            doc.table = { title: heading ? heading.textContent.trim() : '', columns: columns, rows: rows };
+          }
+        }
+        var design = page.querySelector('.archify-sheet-design');
+        if (design) {
+          var designHeading = design.querySelector('.archify-sheet-heading');
+          var lines = [];
+          Array.prototype.forEach.call(design.querySelectorAll('li'), function (li) {
+            var value = li.textContent.replace(/\s+/g, ' ').trim();
+            if (value) lines.push(value);
+          });
+          if (lines.length) doc.design = { title: designHeading ? designHeading.textContent.trim() : '', lines: lines };
+        }
+        var legend = page.querySelector('.archify-sheet-legend');
+        if (legend) {
+          var entries = [];
+          Array.prototype.forEach.call(legend.querySelectorAll('li'), function (li) {
+            var chip = li.querySelector('.archify-sheet-chip');
+            entries.push({
+              label: li.textContent.replace(/\s+/g, ' ').trim(),
+              color: chip ? getComputedStyle(chip).borderTopColor : '',
+              dashed: chip ? /dashed/.test(getComputedStyle(chip).borderTopStyle) : false
+            });
+          });
+          if (entries.length) doc.legend = entries;
+        }
+        return doc;
       }
 
       function wrapCanvasText(ctx, value, maxWidth) {
@@ -7216,25 +7372,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         return lines.length ? lines : [''];
       }
 
-      function measureNotes(notes, columnWidth, family) {
-        if (!notes.length) return 0;
-        var ctx = document.createElement('canvas').getContext('2d');
-        var inner = columnWidth - NOTE_PAD_X * 2;
+      function measureSheetDocument(ctx, doc, layout) {
+        if (!doc) return 0;
+        var contentWidth = layout.width - FIGURE_MARGIN * 2;
         var total = 0;
-        for (var row = 0; row < notes.length; row += 2) {
-          var rowHeight = 0;
-          for (var col = 0; col < 2 && row + col < notes.length; col += 1) {
-            var note = notes[row + col];
-            ctx.font = '600 ' + NOTE_TITLE_SIZE + 'px ' + family;
-            var height = NOTE_PAD_Y * 2 + wrapCanvasText(ctx, note.title, inner).length * NOTE_TITLE_LINE;
-            ctx.font = '400 ' + NOTE_BODY_SIZE + 'px ' + family;
-            for (var k = 0; k < note.items.length; k += 1) {
-              height += wrapCanvasText(ctx, note.items[k], inner - NOTE_BULLET).length * NOTE_BODY_LINE + NOTE_ITEM_GAP;
-            }
-            if (height > rowHeight) rowHeight = height;
+        if (doc.notes) {
+          ctx.font = '400 ' + SHEET_NOTE_SIZE + 'px ' + layout.family;
+          total += SHEET_HEAD_SIZE + SHEET_HEAD_RULE;
+          for (var i = 0; i < doc.notes.length; i += 1) {
+            total += wrapCanvasText(ctx, doc.notes[i], contentWidth - SHEET_NOTE_INDENT).length * SHEET_NOTE_LINE + 2;
           }
-          total += rowHeight + NOTE_GAP;
+          total += SHEET_GAP;
         }
+        var tableWidth = contentWidth * (SHEET_TABLE_COLUMNS.length ? 0.61 : 0);
+        var designWidth = contentWidth - tableWidth - SHEET_GAP;
+        var columnsHeight = 0;
+        if (doc.table) {
+          var widths = SHEET_TABLE_COLUMNS.map(function (fraction) { return tableWidth * fraction; });
+          var height = SHEET_HEAD_SIZE + SHEET_HEAD_RULE + SHEET_TABLE_LINE;
+          for (var r = 0; r < doc.table.rows.length; r += 1) {
+            var rowLines = 1;
+            for (var c = 0; c < doc.table.columns.length; c += 1) {
+              ctx.font = '400 ' + SHEET_TABLE_SIZE + 'px ' + layout.family;
+              var cellLines = wrapCanvasText(ctx, doc.table.rows[r][c] || '', widths[c] - 8).length;
+              if (cellLines > rowLines) rowLines = cellLines;
+            }
+            height += rowLines * SHEET_TABLE_LINE + SHEET_TABLE_PAD;
+          }
+          columnsHeight = Math.max(columnsHeight, height);
+        }
+        if (doc.design) {
+          var designHeight = SHEET_HEAD_SIZE + SHEET_HEAD_RULE;
+          ctx.font = '400 ' + SHEET_DESIGN_SIZE + 'px ' + layout.family;
+          for (var d = 0; d < doc.design.lines.length; d += 1) {
+            designHeight += wrapCanvasText(ctx, doc.design.lines[d], designWidth).length * SHEET_DESIGN_LINE + 2;
+          }
+          columnsHeight = Math.max(columnsHeight, designHeight);
+        }
+        total += columnsHeight;
+        if (doc.legend) total += SHEET_GAP * 0.8 + SHEET_LEGEND_SIZE + 6;
+        if (layout.footer) total += SHEET_FOOTER_RULE + SHEET_FOOTER_SIZE + 8;
         return total;
       }
 
@@ -7254,16 +7431,18 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         var family = titleNode ? getComputedStyle(titleNode).fontFamily : 'sans-serif';
         var logo = logoNode && logoNode.complete && logoNode.naturalWidth > 0 ? logoNode : null;
         var logoHeight = logo ? (parseFloat(logo.style.height) || FIGURE_LOGO_HEIGHT) : 0;
+        var footerLogoNode = document.querySelector('.archify-sheet-logo-footer');
+        var footerLogo = footerLogoNode && footerLogoNode.complete && footerLogoNode.naturalWidth > 0 ? footerLogoNode : null;
         var footer = footerNode ? footerNode.textContent.trim() : '';
         var titleRow = Math.max(32, logoHeight);
         var header = title ? titleRow + (subtitle ? 24 : 0) + 18 : 0;
         var cardWidth = vb.width + FIGURE_CARD_PADDING * 2;
         var cardHeight = vb.height + FIGURE_CARD_PADDING * 2;
         var width = cardWidth + FIGURE_MARGIN * 2;
-        var columnWidth = (width - FIGURE_MARGIN * 2 - NOTE_GAP) / 2;
-        var notes = sheet ? sheetNotes() : [];
-        var notesHeight = measureNotes(notes, columnWidth, family);
-        var footerHeight = footer ? 34 : 0;
+        var doc = sheet ? sheetDocument() : null;
+        var scratch = document.createElement('canvas').getContext('2d');
+        var partial = { width: width, family: family, footer: footer ? footer : '' };
+        var docHeight = doc ? measureSheetDocument(scratch, doc, partial) : 0;
         var cardFill = sheet ? '#ffffff'
           : card && card.backgroundColor && !/rgba\(0, 0, 0, 0\)|transparent/.test(card.backgroundColor)
             ? card.backgroundColor : (root.getPropertyValue('--panel').trim() || 'transparent');
@@ -7282,16 +7461,15 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           sheet: sheet,
           logo: logo,
           logoHeight: logoHeight,
+          footerLogo: footerLogo,
           footer: footer,
-          notes: notes,
-          notesHeight: notesHeight,
-          columnWidth: columnWidth,
+          doc: doc,
+          docHeight: docHeight,
           header: header,
-          footerHeight: footerHeight,
           cardWidth: cardWidth,
           cardHeight: cardHeight,
           width: width,
-          height: cardHeight + FIGURE_MARGIN * 2 + header + notesHeight + footerHeight
+          height: cardHeight + FIGURE_MARGIN * 2 + header + docHeight
         };
       }
 
@@ -7332,13 +7510,6 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           }
           ctx.textBaseline = 'alphabetic';
         }
-        if (layout.footer) {
-          ctx.fillStyle = layout.muted;
-          ctx.textBaseline = 'alphabetic';
-          ctx.font = '400 ' + FIGURE_FOOTER_SIZE + 'px ' + layout.family;
-          ctx.fillText(fitCanvasText(ctx, layout.footer, layout.width - m * 2, FIGURE_FOOTER_SIZE, 9, '400', layout.family), m,
-            layout.height - m + 4);
-        }
         var x = m, y = m + layout.header, w = layout.cardWidth, h = layout.cardHeight, r = 16;
         function cardPath() {
           ctx.beginPath();
@@ -7374,81 +7545,155 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         ctx.strokeStyle = layout.cardBorder;
         ctx.lineWidth = 1;
         ctx.stroke();
-        if (layout.sheet && layout.notes.length) paintSheetNotes(ctx, layout, x, y + h + NOTE_GAP);
+        if (layout.sheet && layout.doc) paintSheetDocument(ctx, layout, x, y + h);
         return { x: x + FIGURE_CARD_PADDING, y: y + FIGURE_CARD_PADDING };
       }
 
-      // Notes are authored prose, so every card is sized from its wrapped
-      // measure rather than a fixed row height: a long bullet reflows instead
-      // of spilling past the column or over the next card.
-      function paintSheetNotes(ctx, layout, left, top) {
-        var columnWidth = layout.columnWidth;
-        var inner = columnWidth - NOTE_PAD_X * 2;
-        for (var row = 0; row < layout.notes.length; row += 2) {
-          var rowHeight = 0;
-          for (var col = 0; col < 2 && row + col < layout.notes.length; col += 1) {
-            var note = layout.notes[row + col];
-            var x = left + col * (columnWidth + NOTE_GAP);
-            var y = top;
-            ctx.font = '600 ' + NOTE_TITLE_SIZE + 'px ' + layout.family;
-            var titleLines = wrapCanvasText(ctx, note.title, inner);
-            ctx.font = '400 ' + NOTE_BODY_SIZE + 'px ' + layout.family;
-            var body = [];
-            for (var k = 0; k < note.items.length; k += 1) {
-              var lines = wrapCanvasText(ctx, note.items[k], inner - NOTE_BULLET);
-              body.push(lines);
-            }
-            var height = NOTE_PAD_Y * 2 + titleLines.length * NOTE_TITLE_LINE;
-            for (var b = 0; b < body.length; b += 1) height += body[b].length * NOTE_BODY_LINE + NOTE_ITEM_GAP;
-            if (height > rowHeight) rowHeight = height;
+      // The page furniture mirrors the printed sheet: numbered notes, the port
+      // table beside the design rationale, the cable legend, and a footer that
+      // repeats the brand. Every block is measured before it is drawn, so a
+      // long row grows the canvas instead of colliding with the next section.
+      function paintSheetDocument(ctx, layout, left, top) {
+        var doc = layout.doc;
+        var m = FIGURE_MARGIN;
+        var contentWidth = layout.width - m * 2;
+        var y = top + SHEET_GAP;
 
-            ctx.fillStyle = layout.bg;
-            if (typeof ctx.roundRect === 'function') {
-              ctx.beginPath(); ctx.roundRect(x, y, columnWidth, height, 12); ctx.fill();
-            } else {
-              ctx.fillRect(x, y, columnWidth, height);
-            }
-            ctx.strokeStyle = layout.cardBorder;
-            ctx.lineWidth = 1;
-            if (typeof ctx.roundRect === 'function') {
-              ctx.beginPath(); ctx.roundRect(x, y, columnWidth, height, 12); ctx.stroke();
-            } else {
-              ctx.strokeRect(x, y, columnWidth, height);
-            }
+        function heading(text, x) {
+          ctx.font = '700 ' + SHEET_HEAD_SIZE + 'px ' + layout.family;
+          ctx.fillStyle = layout.text;
+          ctx.textBaseline = 'alphabetic';
+          ctx.fillText(text, x === undefined ? left : x, y + SHEET_HEAD_SIZE);
+          y += SHEET_HEAD_SIZE + SHEET_HEAD_RULE;
+        }
 
-            var textY = y + NOTE_PAD_Y;
-            if (note.dot) {
-              ctx.fillStyle = note.dot;
-              ctx.beginPath();
-              ctx.arc(x + NOTE_PAD_X + 3, textY + NOTE_TITLE_SIZE / 2 + 1, 3.5, 0, Math.PI * 2);
-              ctx.fill();
+        if (doc.notes) {
+          heading('说明');
+          ctx.font = '400 ' + SHEET_NOTE_SIZE + 'px ' + layout.family;
+          ctx.fillStyle = layout.muted;
+          for (var i = 0; i < doc.notes.length; i += 1) {
+            ctx.fillText((i + 1) + '.', left, y + SHEET_NOTE_SIZE);
+            var lines = wrapCanvasText(ctx, doc.notes[i], contentWidth - SHEET_NOTE_INDENT);
+            for (var l = 0; l < lines.length; l += 1) {
+              ctx.fillText(lines[l], left + SHEET_NOTE_INDENT, y + SHEET_NOTE_SIZE + l * SHEET_NOTE_LINE);
             }
-            ctx.fillStyle = layout.text;
-            ctx.font = '600 ' + NOTE_TITLE_SIZE + 'px ' + layout.family;
-            ctx.textBaseline = 'middle';
-            for (var t = 0; t < titleLines.length; t += 1) {
-              ctx.fillText(titleLines[t], x + NOTE_PAD_X + NOTE_BULLET, textY + NOTE_TITLE_SIZE / 2 + t * NOTE_TITLE_LINE + 1);
-            }
-            textY += titleLines.length * NOTE_TITLE_LINE;
-
-            ctx.font = '400 ' + NOTE_BODY_SIZE + 'px ' + layout.family;
-            ctx.fillStyle = layout.muted;
-            for (var c = 0; c < body.length; c += 1) {
-              if (note.dot) {
-                ctx.fillStyle = note.dot;
-                ctx.beginPath();
-                ctx.arc(x + NOTE_PAD_X + 2.5, textY + 7, 2, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.fillStyle = layout.muted;
-              }
-              for (var l = 0; l < body[c].length; l += 1) {
-                ctx.fillText(body[c][l], x + NOTE_PAD_X + NOTE_BULLET, textY + 7 + l * NOTE_BODY_LINE);
-              }
-              textY += body[c].length * NOTE_BODY_LINE + NOTE_ITEM_GAP;
-            }
-            ctx.textBaseline = 'alphabetic';
+            y += lines.length * SHEET_NOTE_LINE + 2;
           }
-          top += rowHeight + NOTE_GAP;
+          y += SHEET_GAP;
+        }
+
+        var tableWidth = contentWidth * 0.61;
+        var designWidth = contentWidth - tableWidth - SHEET_GAP;
+        var columnsTop = y;
+        var tableHeight = 0;
+
+        if (doc.table) {
+          heading(doc.table.title || '端口对照');
+          tableHeight = y - columnsTop;
+          var widths = SHEET_TABLE_COLUMNS.map(function (fraction) { return tableWidth * fraction; });
+          ctx.font = '700 ' + SHEET_TABLE_SIZE + 'px ' + layout.family;
+          ctx.fillStyle = layout.text;
+          var cx = left;
+          for (var c = 0; c < doc.table.columns.length && c < widths.length; c += 1) {
+            ctx.fillText(doc.table.columns[c], cx, y + SHEET_TABLE_SIZE);
+            cx += widths[c];
+          }
+          y += SHEET_TABLE_LINE;
+          ctx.strokeStyle = layout.cardBorder;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(left, y - 5);
+          ctx.lineTo(left + tableWidth, y - 5);
+          ctx.stroke();
+          for (var r = 0; r < doc.table.rows.length; r += 1) {
+            var rowTop = y;
+            var maxLines = 1;
+            cx = left;
+            for (var k = 0; k < widths.length; k += 1) {
+              var cellLines = wrapCanvasText(ctx, doc.table.rows[r][k] || '', widths[k] - 8);
+              if (cellLines.length > maxLines) maxLines = cellLines.length;
+              cx += widths[k];
+            }
+            cx = left;
+            for (var k2 = 0; k2 < widths.length; k2 += 1) {
+              ctx.font = '400 ' + SHEET_TABLE_SIZE + 'px ' + layout.family;
+              ctx.fillStyle = layout.muted;
+              var cell = wrapCanvasText(ctx, doc.table.rows[r][k2] || '', widths[k2] - 8);
+              for (var cl = 0; cl < cell.length; cl += 1) {
+                ctx.fillText(cell[cl], cx, rowTop + SHEET_TABLE_SIZE + cl * SHEET_TABLE_LINE);
+              }
+              cx += widths[k2];
+            }
+            y = rowTop + maxLines * SHEET_TABLE_LINE + SHEET_TABLE_PAD;
+            ctx.beginPath();
+            ctx.moveTo(left, y - 4);
+            ctx.lineTo(left + tableWidth, y - 4);
+            ctx.stroke();
+          }
+          tableHeight = y - columnsTop;
+        }
+
+        var designHeight = 0;
+        if (doc.design) {
+          var designY = columnsTop;
+          var restore = y;
+          y = designY;
+          heading(doc.design.title || '设计说明', left + tableWidth + SHEET_GAP);
+          ctx.font = '400 ' + SHEET_DESIGN_SIZE + 'px ' + layout.family;
+          ctx.fillStyle = layout.muted;
+          for (var d = 0; d < doc.design.lines.length; d += 1) {
+            var designLines = wrapCanvasText(ctx, doc.design.lines[d], designWidth);
+            for (var dl = 0; dl < designLines.length; dl += 1) {
+              ctx.fillText(designLines[dl], left + tableWidth + SHEET_GAP, y + SHEET_DESIGN_SIZE + dl * SHEET_DESIGN_LINE);
+            }
+            y += designLines.length * SHEET_DESIGN_LINE + 2;
+          }
+          designHeight = y - columnsTop;
+          y = Math.max(restore, columnsTop + designHeight);
+        }
+
+        if (doc.legend) {
+          y += SHEET_GAP * 0.8;
+          var lx = left;
+          ctx.textBaseline = 'alphabetic';
+          for (var e = 0; e < doc.legend.length; e += 1) {
+            var entry = doc.legend[e];
+            ctx.strokeStyle = entry.color || layout.muted;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            if (entry.dashed) ctx.setLineDash([5, 4]);
+            ctx.moveTo(lx, y + SHEET_LEGEND_SIZE - 4);
+            ctx.lineTo(lx + SHEET_LEGEND_CHIP, y + SHEET_LEGEND_SIZE - 4);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.font = '400 ' + SHEET_LEGEND_SIZE + 'px ' + layout.family;
+            ctx.fillStyle = layout.muted;
+            ctx.fillText(entry.label, lx + SHEET_LEGEND_CHIP + 8, y + SHEET_LEGEND_SIZE);
+            lx += SHEET_LEGEND_CHIP + 8 + ctx.measureText(entry.label).width + 26;
+          }
+          y += SHEET_LEGEND_SIZE + 6;
+        }
+
+        if (layout.footer) {
+          y += SHEET_FOOTER_RULE;
+          ctx.strokeStyle = layout.cardBorder;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(left, y);
+          ctx.lineTo(left + contentWidth, y);
+          ctx.stroke();
+          ctx.font = '400 ' + SHEET_FOOTER_SIZE + 'px ' + layout.family;
+          ctx.fillStyle = layout.muted;
+          var footerLogoHeight = 26;
+          var room = contentWidth;
+          if (layout.footerLogo) {
+            room -= footerLogoHeight * (layout.footerLogo.naturalWidth / layout.footerLogo.naturalHeight) + 16;
+          }
+          ctx.fillText(fitCanvasText(ctx, layout.footer, room, SHEET_FOOTER_SIZE, 8, '400', layout.family), left, y + SHEET_FOOTER_SIZE + 8);
+          if (layout.footerLogo) {
+            var fw = footerLogoHeight * (layout.footerLogo.naturalWidth / layout.footerLogo.naturalHeight);
+            ctx.drawImage(layout.footerLogo, left + contentWidth - fw, y + 2, fw, footerLogoHeight);
+          }
         }
       }
 

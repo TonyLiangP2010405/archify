@@ -86,6 +86,60 @@
             "footer": {
               "type": "string",
               "description": "Small line printed at the foot of the page, such as a version or a date."
+            },
+            "notes": {
+              "type": "array",
+              "description": "Numbered explanation list printed under the diagram, in the order the reader needs it.",
+              "items": { "type": "string", "minLength": 1 }
+            },
+            "table": {
+              "type": "object",
+              "description": "Cross-reference table: which device port meets which device over which cable.",
+              "additionalProperties": false,
+              "required": ["columns", "rows"],
+              "properties": {
+                "title": { "type": "string", "minLength": 1 },
+                "columns": {
+                  "type": "array",
+                  "minItems": 2,
+                  "maxItems": 4,
+                  "items": { "type": "string", "minLength": 1 }
+                },
+                "rows": {
+                  "type": "array",
+                  "items": {
+                    "type": "array",
+                    "items": { "type": "string" }
+                  }
+                }
+              }
+            },
+            "design": {
+              "type": "object",
+              "description": "Short design rationale printed beside the table.",
+              "additionalProperties": false,
+              "required": ["lines"],
+              "properties": {
+                "title": { "type": "string", "minLength": 1 },
+                "lines": {
+                  "type": "array",
+                  "items": { "type": "string", "minLength": 1 }
+                }
+              }
+            },
+            "legend": {
+              "type": "array",
+              "description": "Cable legend printed above the footer.",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["label"],
+                "properties": {
+                  "label": { "type": "string", "minLength": 1 },
+                  "color": { "type": "string", "minLength": 1 },
+                  "dashed": { "type": "boolean" }
+                }
+              }
             }
           }
         }
