@@ -6526,7 +6526,8 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
               }
               if (rule.type !== 1) return; // plain style rules only
               var sel = rule.selectorText || '';
-              if (/(^|,)\s*(svg|:root|\[data-theme|\[data-preset|\.c-|\.t-|\.a-|\.m-)/.test(sel)) {
+              // Boundary tones ride on a data attribute, so the filter must keep that prefix too or every zone falls back to the default amber in the raster export.
+              if (/(^|,)\s*(svg|:root|\[data-theme|\[data-preset|\[data-boundary-tone|\.c-|\.t-|\.a-|\.m-)/.test(sel)) {
                 out.push(rule.cssText);
               } else if (opts.figure && sel.indexOf('.diagram-container > svg') !== -1) {
                 // Figures look like the Viewer canvas: keep its preset/theme paint
