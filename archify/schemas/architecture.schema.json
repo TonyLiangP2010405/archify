@@ -206,7 +206,7 @@
           "faceplate": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["image", "width", "height", "ports"],
+            "required": ["image", "width", "height"],
             "properties": {
               "image": {
                 "type": "object",
@@ -221,7 +221,8 @@
               "height": { "type": "number", "exclusiveMinimum": 0 },
               "ports": {
                 "type": "array",
-                "minItems": 1,
+                "description": "Connector holes at 0-1 coordinates. Omit or leave empty for a plain product photo: the node then draws the image and its model name and exposes no jacks, which is how cameras, microphones and other non-patching devices are drawn.",
+                "minItems": 0,
                 "maxItems": 96,
                 "items": {
                   "type": "object",

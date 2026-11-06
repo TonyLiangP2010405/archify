@@ -845,7 +845,11 @@ function validateArchitecture() {
     }
     const sourceWidth = c.faceplate.width;
     const renderedScale = sourceWidth ? c.width / sourceWidth : 1;
+    // A portless faceplate is a product photo, not a connector panel: there is
+    // no silkscreen to keep legible, so it may be drawn small.
+    const faceplatePorts = asArray(c.faceplate.ports).length;
     if ((process.env.ARCHIFY_QUALITY_PROFILE || arch.meta?.quality_profile) === 'showcase'
+      && faceplatePorts > 0
       && sourceWidth >= FACEPLATE_PHOTO_MIN_SOURCE_PX
       && renderedScale < FACEPLATE_MIN_RENDERED_SCALE) {
       const minWidth = Math.ceil(sourceWidth * FACEPLATE_MIN_RENDERED_SCALE);
