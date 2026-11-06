@@ -3049,14 +3049,14 @@ html[data-reader-rail="bottom"] .node-outline-item::after {
   }
   /* One page, like a printed specification: the diagram keeps the top half and
      the notes close under it instead of spilling a lone footer onto page two. */
-  html[data-sheet="true"] .diagram-container > svg { max-height: 108mm; }
+  html[data-sheet="true"] .diagram-container > svg { max-height: 94mm; }
   html[data-sheet="true"] .cards { display: none; }
-  html[data-sheet="true"] .archify-sheet-page { margin-top: 6mm; }
+  html[data-sheet="true"] .archify-sheet-page { margin-top: 4mm; }
   html[data-sheet="true"] .archify-sheet-heading {
     font-size: 8.5pt;
     margin-bottom: 1.5mm;
   }
-  html[data-sheet="true"] .archify-sheet-notes-block { margin-bottom: 5mm; }
+  html[data-sheet="true"] .archify-sheet-notes-block { margin-bottom: 3.5mm; }
   html[data-sheet="true"] .archify-sheet-notes {
     font-size: 7.4pt;
     line-height: 1.6;
@@ -3069,19 +3069,19 @@ html[data-reader-rail="bottom"] .node-outline-item::after {
   }
   html[data-sheet="true"] .archify-sheet-table table { font-size: 7pt; }
   html[data-sheet="true"] .archify-sheet-table th,
-  html[data-sheet="true"] .archify-sheet-table td { padding-top: 0.8mm; padding-bottom: 0.8mm; }
+  html[data-sheet="true"] .archify-sheet-table td { padding-top: 0.6mm; padding-bottom: 0.6mm; }
   html[data-sheet="true"] .archify-sheet-design ul {
-    font-size: 6.8pt;
-    line-height: 1.62;
+    font-size: 6.6pt;
+    line-height: 1.55;
   }
   html[data-sheet="true"] .archify-sheet-legend {
-    margin-top: 5mm;
-    gap: 7mm;
-    font-size: 7pt;
+    margin-top: 3mm;
+    gap: 6mm;
+    font-size: 6.8pt;
   }
   html[data-sheet="true"] .archify-sheet-footer {
-    margin-top: 6mm;
-    padding-top: 3mm;
+    margin-top: 2.5mm;
+    padding-top: 2mm;
     font-size: 6.8pt;
   }
 
@@ -4808,19 +4808,36 @@ svg[data-preset="blueprint"][data-relationship-preview-active] [data-relationshi
   filter: drop-shadow(0 0 3px var(--frontend-stroke));
 }
 
-/* Dashed boundary variants */
-.c-security-group { fill: transparent; stroke: var(--security-stroke); stroke-dasharray: 4,4; }
-.c-region         { fill: rgba(251, 191, 36, 0.05); stroke: var(--cloud-stroke); stroke-dasharray: 8,4; }
+/* Dashed boundary variants. A zone may declare a semantic tone; the frame,
+   its pill and its title all read from --boundary-stroke so one authored
+   value colours the whole zone. */
+[data-boundary-tone="frontend"]   { --boundary-stroke: var(--frontend-stroke); }
+[data-boundary-tone="backend"]    { --boundary-stroke: var(--backend-stroke); }
+[data-boundary-tone="database"]   { --boundary-stroke: var(--database-stroke); }
+[data-boundary-tone="cloud"]      { --boundary-stroke: var(--cloud-stroke); }
+[data-boundary-tone="security"]   { --boundary-stroke: var(--security-stroke); }
+[data-boundary-tone="messagebus"] { --boundary-stroke: var(--messagebus-stroke); }
+[data-boundary-tone="external"]   { --boundary-stroke: var(--external-stroke); }
+
+.c-security-group { fill: transparent; stroke: var(--boundary-stroke, var(--security-stroke)); stroke-dasharray: 4,4; }
+.c-region {
+  fill: color-mix(in srgb, var(--boundary-stroke, var(--cloud-stroke)) 14%, transparent);
+  stroke: var(--boundary-stroke, var(--cloud-stroke));
+  stroke-dasharray: 8,4;
+}
 .c-lane           { fill: var(--lane-fill); stroke: var(--lane-stroke); stroke-dasharray: 6,6; }
 
 /* A zone name is read before anything inside it, so it gets a filled pill
    instead of a bare word sitting on the frame: on paper a 9px amber caption
    disappeared next to the device photos. */
 g[data-graph-role="structural-frame-label"] rect[data-graph-role="structural-frame-label-mask"] {
-  fill: color-mix(in srgb, var(--cloud-stroke) 16%, #ffffff);
-  stroke: var(--cloud-stroke);
+  fill: color-mix(in srgb, var(--boundary-stroke, var(--cloud-stroke)) 16%, #ffffff);
+  stroke: var(--boundary-stroke, var(--cloud-stroke));
   stroke-width: 1.2;
   rx: 6px;
+}
+g[data-graph-role="structural-frame-label"] text[data-boundary-label] {
+  fill: var(--boundary-stroke, var(--cloud-stroke));
 }
 g[data-graph-role="structural-frame-label"] text[data-boundary-label] {
   font-weight: 700;

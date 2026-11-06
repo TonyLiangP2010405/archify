@@ -17,12 +17,12 @@ export function nodeCardStyle({ portJacks = false } = {}) {
   return `        <style>
           ${all} ${node} { stroke-width: 1.25px; }
 ${TONES.map((tone) => `          ${dark} ${node}.c-${tone} { fill: color-mix(in srgb, var(--${tone}-stroke) 13%, var(--mask)); stroke: color-mix(in srgb, var(--${tone}-stroke) 72%, var(--mask)); }`).join('\n')}
-          ${solid} .c-region { fill: color-mix(in srgb, var(--cloud-stroke) 3%, transparent); stroke: color-mix(in srgb, var(--cloud-stroke) 42%, var(--lane-stroke)); stroke-dasharray: none; }
-          ${all} .c-security-group { stroke: color-mix(in srgb, var(--security-stroke) 58%, var(--lane-stroke)); }
+          ${solid} .c-region { fill: color-mix(in srgb, var(--boundary-stroke, var(--cloud-stroke)) 12%, transparent); stroke: color-mix(in srgb, var(--boundary-stroke, var(--cloud-stroke)) 45%, var(--lane-stroke)); stroke-dasharray: none; }
+          ${all} .c-security-group { stroke: color-mix(in srgb, var(--boundary-stroke, var(--security-stroke)) 58%, var(--lane-stroke)); }
           ${solid} .c-security-group { stroke-dasharray: 4 3; }
           ${solid} .c-lane { stroke: var(--lane-stroke); stroke-dasharray: none; }
-          ${all} ${frameLabel} { rx: 5px; fill: color-mix(in srgb, var(--cloud-stroke) 10%, var(--mask)); stroke: color-mix(in srgb, var(--cloud-stroke) 38%, var(--mask)); stroke-width: .8px; }
-          ${all} [data-composition-frame-kind="security-group"] > ${frameLabel} { fill: color-mix(in srgb, var(--security-stroke) 9%, var(--mask)); stroke: color-mix(in srgb, var(--security-stroke) 36%, var(--mask)); }
+          ${all} ${frameLabel} { rx: 5px; fill: color-mix(in srgb, var(--boundary-stroke, var(--cloud-stroke)) 14%, var(--mask)); stroke: color-mix(in srgb, var(--boundary-stroke, var(--cloud-stroke)) 45%, var(--mask)); stroke-width: .8px; }
+          ${all} [data-composition-frame-kind="security-group"] > ${frameLabel} { fill: color-mix(in srgb, var(--boundary-stroke, var(--security-stroke)) 9%, var(--mask)); stroke: color-mix(in srgb, var(--boundary-stroke, var(--security-stroke)) 36%, var(--mask)); }
           ${all} .phase-rule { opacity: .5; stroke-dasharray: none; }
           ${all} .phase-chip { stroke: var(--lane-stroke); stroke-width: .75px; }
           ${all} ${edgeLabel} { rx: 7px; stroke: var(--lane-stroke); stroke-width: .75px; }${portJacks ? `

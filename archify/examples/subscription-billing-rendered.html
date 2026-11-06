@@ -180,19 +180,19 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       --text-dim: #475569;
       /* UI chrome and menu hints need more contrast than SVG .t-dim accents */
       --text-faint: #7d8da1;
-
+    
       --panel: rgba(15, 23, 42, 0.5);
       --panel-border: #1e293b;
       --lane-fill: rgba(15, 23, 42, 0.22);
       --lane-stroke: #334155;
-
+    
       --arrow: #94a3b8;
       --arrow-emphasis: #34d399;
-
+    
       /* Opaque mask color used behind semi-transparent component fills
          so the arrows drawn underneath are properly hidden. */
       --mask: #0f172a;
-
+    
       --frontend-fill:    rgba(8, 51, 68, 0.4);
       --frontend-stroke:  #22d3ee;
       --backend-fill:     rgba(6, 78, 59, 0.4);
@@ -207,14 +207,14 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       --messagebus-stroke:#fb923c;
       --external-fill:    rgba(30, 41, 59, 0.5);
       --external-stroke:  #94a3b8;
-
+    
       --toolbar-bg:       rgba(15, 23, 42, 0.8);
       --toolbar-border:   #334155;
       --toolbar-text:     #e2e8f0;
       --toolbar-hover:    rgba(15, 23, 42, 0.95);
       --toolbar-menu-bg:  #0f172a;
     }
-
+    
     [data-theme="light"] {
       --bg: #f4f5f7;
       --grid: #e9edf2;
@@ -223,17 +223,17 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       --text-muted: #5b6474;
       --text-dim: #9aa3b2;
       --text-faint: #6b7280;
-
+    
       --panel: #ffffff;
       --panel-border: #e5e7eb;
       --lane-fill: rgba(248, 250, 252, 0.65);
       --lane-stroke: #cbd5e1;
-
+    
       --arrow: #64748b;
       --arrow-emphasis: #059669;
-
+    
       --mask: #ffffff;
-
+    
       --frontend-fill: rgba(34, 211, 238, 0.15);
       --frontend-stroke: #0891b2;
       --backend-fill: rgba(52, 211, 153, 0.18);
@@ -248,14 +248,14 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       --messagebus-stroke: #ea580c;
       --external-fill: rgba(148, 163, 184, 0.18);
       --external-stroke: #64748b;
-
+    
       --toolbar-bg:       rgba(255, 255, 255, 0.92);
       --toolbar-border:   #cbd5e1;
       --toolbar-text:     #334155;
       --toolbar-hover:    #ffffff;
       --toolbar-menu-bg:  #ffffff;
     }
-
+    
     /* ==========================================================
        SIGNAL FLOW — an opt-in, motion-forward visual preset.
        The variables also target a standalone exported SVG, whose
@@ -293,7 +293,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       --toolbar-border: #29415f;
       --toolbar-menu-bg: #07101e;
     }
-
+    
     [data-preset="signal-flow"][data-theme="light"] {
       --bg: #f4f9fc;
       --grid: #d4e5ee;
@@ -323,7 +323,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       --arrow: #7b97aa;
       --arrow-emphasis: #0d9488;
     }
-
+    
     /* ==========================================================
        BLUEPRINT — a review-first drafting preset for deployment,
        infrastructure, and technical design documentation. It keeps
@@ -364,7 +364,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       --toolbar-hover: rgba(18, 58, 83, 0.95);
       --toolbar-menu-bg: #0a2031;
     }
-
+    
     [data-preset="blueprint"][data-theme="light"] {
       --bg: #edf7fa;
       --grid: #b5d5e1;
@@ -399,7 +399,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       --toolbar-hover: #ffffff;
       --toolbar-menu-bg: #f9fdff;
     }
-
+    
     /* ==========================================================
        EDITORIAL — a warm, publication-minded preset for design
        reviews, launch notes, and documentation. The diagram keeps
@@ -441,7 +441,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       --toolbar-hover: #302a20;
       --toolbar-menu-bg: #231f18;
     }
-
+    
     [data-preset="editorial"][data-theme="light"] {
       --bg: #f2eee5;
       --grid: #d8d0c2;
@@ -476,9 +476,9 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       --toolbar-hover: #fffdf8;
       --toolbar-menu-bg: #fbf8f1;
     }
-
+    
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
+    
     body {
       --archify-page-top: 2rem;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans CJK SC', 'Noto Sans', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -490,7 +490,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       /* Theme surfaces change together; animating the page background leaves it
          visibly out of sync with the SVG and panel for the first 200ms. */
     }
-
+    
     html[data-preset="signal-flow"] body {
       background-image:
         radial-gradient(circle at 18% -8%, rgba(34, 211, 238, 0.14), transparent 34rem),
@@ -516,7 +516,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         repeating-linear-gradient(0deg, transparent 0, transparent 31px, color-mix(in srgb, var(--grid) 36%, transparent) 31px, color-mix(in srgb, var(--grid) 36%, transparent) 32px);
       background-attachment: fixed;
     }
-
+    
     /* Gallery/embed mode keeps the generated artifact as the source of truth
        while presenting only its diagram surface inside a proof card. */
     html[data-embed="true"] body {
@@ -545,7 +545,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       box-shadow: none;
     }
     html[data-embed="true"] .diagram-container svg { min-width: 0; }
-
+    
     /* Presentation Stage is a viewer-only layer: it gives the live diagram
        the viewport while keeping guided views, theme, focus, and exports real.
        Embed mode wins when both query parameters are present. */
@@ -576,7 +576,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       text-overflow: ellipsis;
       white-space: nowrap;
     }
-
+    
     html[data-present="true"]:not([data-embed="true"]) .diagram-container {
       display: flex;
       flex: 1 1 auto;
@@ -598,7 +598,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       border-color: var(--frontend-stroke);
       color: var(--frontend-stroke);
     }
-
+    
     /* The reader owns only the outer scale. Compact automatic sequences fit at
        their authored text size or larger. Long sequences and waterfall rows
        favor reading width and page scroll; other diagrams keep height fitting.
@@ -634,13 +634,13 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       .cards { margin-top: 1rem; }
       .card { padding: 1rem; }
     }
-
+    
     .header { margin-bottom: 1.5rem; padding-right: 29.5rem; }
-
+    
     html[data-preset="signal-flow"] .header,
     html[data-preset="blueprint"] .header,
     html[data-preset="editorial"] .header { padding-right: 29.5rem; }
-
+    
     .header-row {
       display: flex;
       align-items: center;
@@ -648,7 +648,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       min-height: 2.75rem;
       margin-bottom: 0.25rem;
     }
-
+    
     .pulse-dot {
       flex: none;
       width: 10px;
@@ -658,28 +658,28 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       box-shadow: 0 0 0 4px color-mix(in srgb, var(--frontend-stroke) 16%, transparent);
       animation: none;
     }
-
+    
     html[data-motion-capable="true"] .pulse-dot { animation: pulse 2s infinite; }
-
+    
     @keyframes pulse {
       0%, 100% { opacity: 1; }
       50% { opacity: 0.5; }
     }
-
+    
     h1 {
       font-size: 1.5rem;
       font-weight: 650;
       line-height: 1.25;
       letter-spacing: -0.015em;
     }
-
+    
     .subtitle {
       color: var(--text-muted);
       font-size: 0.875rem;
       line-height: 1.55;
       margin-left: 1.375rem;
     }
-
+    
     /* Deliverable sheet: the brand lockup sits opposite the title, and the footer
        closes the document. Both are static markup so the raster export and print
        stylesheet can draw them without re-deriving anything. */
@@ -687,7 +687,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       position: relative;
       padding-right: 15rem;
     }
-
+    
     .archify-sheet-brand {
       position: absolute;
       top: 0;
@@ -696,16 +696,16 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       align-items: center;
       gap: 0.6rem;
     }
-
+    
     .archify-sheet-logo { display: block; width: auto; }
-
+    
     .archify-sheet-name {
       font-size: 0.9375rem;
       font-weight: 650;
       letter-spacing: 0.02em;
       color: var(--text);
     }
-
+    
     .archify-sheet-footer {
       margin-top: 1.5rem;
       padding-top: 0.75rem;
@@ -714,12 +714,12 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       font-size: 0.75rem;
       letter-spacing: 0.01em;
     }
-
+    
     /* Page furniture under the diagram: numbered notes, a port cross-reference
        table, the design rationale, and the cable legend. On screen it reads as a
        document appendix; in print it becomes the lower half of the sheet. */
     .archify-sheet-page { margin-top: 2rem; }
-
+    
     .archify-sheet-heading {
       margin: 0 0 0.5rem;
       font-size: 0.8125rem;
@@ -727,9 +727,9 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       letter-spacing: 0.02em;
       color: var(--text);
     }
-
+    
     .archify-sheet-notes-block { margin-bottom: 1.75rem; }
-
+    
     .archify-sheet-notes {
       margin: 0;
       padding-left: 1.25rem;
@@ -737,22 +737,22 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       font-size: 0.8125rem;
       line-height: 1.7;
     }
-
+    
     .archify-sheet-notes li { margin-bottom: 0.35rem; }
-
+    
     .archify-sheet-columns {
       display: grid;
       grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
       gap: 2.5rem;
       align-items: start;
     }
-
+    
     .archify-sheet-table table {
       width: 100%;
       border-collapse: collapse;
       font-size: 0.75rem;
     }
-
+    
     .archify-sheet-table th {
       text-align: left;
       font-weight: 700;
@@ -760,14 +760,14 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       padding: 0.35rem 0.5rem 0.35rem 0;
       border-bottom: 1px solid var(--text-dim, #cbd5e1);
     }
-
+    
     .archify-sheet-table td {
       padding: 0.28rem 0.5rem 0.28rem 0;
       color: var(--text-muted);
       border-bottom: 1px solid color-mix(in srgb, var(--panel-border) 55%, transparent);
       vertical-align: top;
     }
-
+    
     .archify-sheet-design ul {
       margin: 0;
       padding: 0;
@@ -776,9 +776,9 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       font-size: 0.75rem;
       line-height: 1.75;
     }
-
+    
     .archify-sheet-design li { margin-bottom: 0.3rem; }
-
+    
     .archify-sheet-legend {
       display: flex;
       flex-wrap: wrap;
@@ -789,27 +789,27 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       font-size: 0.75rem;
       color: var(--text-muted);
     }
-
+    
     .archify-sheet-legend li { display: flex; align-items: center; gap: 0.45rem; }
-
+    
     .archify-sheet-chip {
       width: 16px;
       height: 0;
       border-top: 3px solid var(--chip, currentColor);
       border-radius: 2px;
     }
-
+    
     .archify-sheet-chip-dashed { border-top-style: dashed; }
-
+    
     .archify-sheet-footer {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 1rem;
     }
-
+    
     .archify-sheet-logo-footer { display: block; width: auto; }
-
+    
     html[data-preset="signal-flow"] .header-row::after {
       content: attr(data-preset-badge-signal-flow);
       flex: none;
@@ -824,7 +824,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       box-shadow: 0 0 20px rgba(34, 211, 238, 0.12);
       white-space: nowrap;
     }
-
+    
     html[data-preset="blueprint"] .pulse-dot {
       width: 10px;
       height: 10px;
@@ -848,7 +848,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       letter-spacing: 0.14em;
       white-space: nowrap;
     }
-
+    
     html[data-preset="editorial"] h1,
     html[data-preset="editorial"] .card h3 {
       font-family: Georgia, 'Times New Roman', 'Songti SC', STSong, serif;
@@ -879,7 +879,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       letter-spacing: 0.08em;
       white-space: nowrap;
     }
-
+    
     .diagram-container {
       --archify-nav-reserve: 0px;
       background: var(--panel);
@@ -891,7 +891,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       overflow: hidden;
       position: relative;
     }
-
+    
     html[data-preset="signal-flow"] .diagram-container {
       position: relative;
       overflow: hidden;
@@ -965,7 +965,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       transform: translateX(-70%);
       animation: archify-signal-scan 4.8s ease-in-out 1 both;
     }
-
+    
     /* Motion Governor gives the reader a real static state and gives the
        strongest semantic action the only motion budget. Atmosphere resets to
        its authored base instead of freezing mid-cycle. Static artifacts never
@@ -1016,7 +1016,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     html[data-document-hidden="true"] .overview-map-live {
       animation: none !important;
     }
-
+    
     html[data-motion="still"] .intent-trace-flow,
     html[data-motion="still"] .route-probe-flow {
       stroke-dasharray: none;
@@ -1026,7 +1026,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     html[data-motion="still"] .route-journey-overlay,
     html[data-document-hidden="true"] .route-journey-overlay { display: none !important; }
     html[data-motion="still"] .relationship-pulse-overlay { display: none !important; }
-
+    
     html[data-motion="still"] svg [data-node-id],
     html[data-motion="still"] svg [data-edge-from],
     html[data-motion="still"] svg [data-detail],
@@ -1035,7 +1035,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     html[data-motion="still"] svg {
       transition: none !important;
     }
-
+    
     svg {
       font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, 'DejaVu Sans Mono', 'Liberation Mono', 'Noto Sans Mono CJK SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', monospace;
       width: 100%;
@@ -1044,7 +1044,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       transform-origin: 0 0;
       transition: transform 0.18s ease;
     }
-
+    
     .diagram-container.is-camera-moving svg {
       transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
     }
@@ -1052,7 +1052,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     .diagram-container.is-pannable { cursor: grab; }
     .diagram-container.is-panning { cursor: grabbing; user-select: none; }
     .diagram-container.is-panning svg { transition: none; }
-
+    
     .diagram-nav {
       position: absolute;
       right: 1rem;
@@ -1252,7 +1252,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       color: var(--cloud-stroke);
       background: var(--toolbar-hover);
     }
-
+    
     /* Semantic Radar is a deliberately simplified, viewer-only overview. It
        uses authored node bounds and the live camera viewport rather than
        cloning the canonical SVG, so IDs, filters, animation, and export state
@@ -1498,7 +1498,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       color: var(--database-stroke);
       background: color-mix(in srgb, var(--database-stroke) 11%, transparent);
     }
-
+    
     /* Semantic Lens turns the compiled node-kind palette into an analytical
        legend. One kind reveals its real traffic; two kinds compare only their
        direct authored relationships. Geometry and the canonical SVG stay put. */
@@ -1673,7 +1673,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       from { opacity: 0; transform: translateY(5px) scale(0.985); }
       to { opacity: 1; transform: translateY(0) scale(1); }
     }
-
+    
     /* Route Probe answers a reader question over the compiled semantic graph:
        choose two stable nodes and reveal the shortest authored directed route.
        The receipt and signal live entirely in the viewer layer. */
@@ -1848,7 +1848,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       border-color: color-mix(in srgb, var(--security-stroke) 72%, var(--toolbar-border));
     }
     .route-probe[data-state="error"] .route-probe-status { color: var(--security-stroke); }
-
+    
     .focus-chip {
       position: absolute;
       left: 1rem;
@@ -2227,7 +2227,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       font-size: 0.625rem;
       text-align: center;
     }
-
+    
     /* Diagram Guide keeps the artifact's growing reader vocabulary
        discoverable without widening the permanent control bar. It derives
        honest counts at runtime and delegates every action to an existing
@@ -2334,7 +2334,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     .diagram-guide-action[data-guide-action="route"] { --guide-accent: var(--backend-stroke); }
     .diagram-guide-action[data-guide-action="map"] { --guide-accent: var(--database-stroke); }
     .diagram-guide-action[data-guide-action="lens"] { --guide-accent: var(--messagebus-stroke); }
-
+    
     .diagram-guide-action[data-guide-action="present"] {
       --guide-accent: var(--cloud-stroke);
     }
@@ -2457,7 +2457,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       from { opacity: 0; transform: translateY(-5px) scale(0.985); }
       to { opacity: 1; transform: translateY(0) scale(1); }
     }
-
+    
     .node-finder {
       position: absolute;
       top: 1rem;
@@ -2659,14 +2659,14 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       color: var(--text-faint);
       font-size: 0.5625rem;
     }
-
+    
     .cards {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(min(15rem, 100%), 1fr));
       gap: 1rem;
       margin-top: 2rem;
     }
-
+    
     .card {
       background: var(--panel);
       border-radius: 0.75rem;
@@ -2680,7 +2680,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
          intrinsic minimum the layout is sized from. */
       overflow-wrap: anywhere;
     }
-
+    
     html[data-preset="signal-flow"] .card {
       background: linear-gradient(145deg, rgba(10, 24, 43, 0.86), rgba(5, 12, 24, 0.92));
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
@@ -2689,7 +2689,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       background: linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(237, 246, 250, 0.9));
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.82), 0 12px 32px rgba(45, 78, 99, 0.08);
     }
-
+    
     /* Preserve the one-screen guarantee on ordinary laptop displays. The
        high-screen expansion above must not trade a fuller canvas for page
        scrolling at 900–1080px heights. */
@@ -2715,7 +2715,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       html[data-nav-stage-rail="true"] .diagram-container[data-nav-stage-rail="true"] { padding-top: 0.5rem; }
       html[data-nav-stage-rail="true"] .cards { margin-top: 0.375rem; }
     }
-
+    
     html[data-preset="blueprint"] .card {
       position: relative;
       border-color: var(--panel-border);
@@ -2731,7 +2731,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       width: 2.5rem;
       border-top: 2px solid var(--frontend-stroke);
     }
-
+    
     html[data-preset="editorial"] .card {
       position: relative;
       border-radius: 0.28rem;
@@ -2747,7 +2747,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       content: "";
     }
     html[data-preset="editorial"] .card-dot { border-radius: 0; transform: rotate(45deg) scale(0.78); }
-
+    
     /* Summary rail: the reader measures the viewport and enables it only when the
        diagram keeps its readable width beside the notes. */
     .reader-rail { display: contents; }
@@ -2802,7 +2802,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     html:is([data-reader-rail="true"], [data-reader-rail="overlay"]) .card-header { gap: 0.55rem; margin-bottom: 0.45rem; }
     html:is([data-reader-rail="true"], [data-reader-rail="overlay"]) .cards .card h3 { font-size: 0.875rem; letter-spacing: -0.005em; }
     html:is([data-reader-rail="true"], [data-reader-rail="overlay"]) .cards .card ul { font-size: 0.8125rem; line-height: 1.6; }
-
+    
     .node-outline { display: none; }
     html:is([data-reader-rail="true"], [data-reader-rail="overlay"]) .node-outline:not([hidden]) {
       display: flex;
@@ -3106,7 +3106,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     .node-outline-item:hover small,
     .node-outline-item[data-previewing] small,
     .node-outline-item[aria-current="true"] small { color: var(--text-muted); }
-
+    
     /* The desktop bottom rail is an index: compact rows keep related nodes
        together while allowing full names and descriptions to wrap naturally. */
     html[data-reader-rail="bottom"] .node-outline-item {
@@ -3137,21 +3137,21 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       grid-row: 1;
       align-self: center;
     }
-
+    
     .card-header {
       display: flex;
       align-items: center;
       gap: 0.5rem;
       margin-bottom: 0.625rem;
     }
-
+    
     .card-dot {
       flex: none;
       width: 8px;
       height: 8px;
       border-radius: 50%;
     }
-
+    
     .card-dot.cyan     { background: var(--frontend-stroke); }
     .card-dot.emerald  { background: var(--backend-stroke); }
     .card-dot.violet   { background: var(--database-stroke); }
@@ -3159,16 +3159,16 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     .card-dot.rose     { background: var(--security-stroke); }
     .card-dot.orange   { background: var(--messagebus-stroke); }
     .card-dot.slate    { background: var(--external-stroke); }
-
+    
     .card h3 { font-size: 0.9375rem; font-weight: 600; line-height: 1.4; color: var(--text); }
-
+    
     .card ul {
       list-style: none;
       color: var(--text-muted);
       font-size: 0.8125rem;
       line-height: 1.6;
     }
-
+    
     .card li {
       position: relative;
       margin-bottom: 0.3rem;
@@ -3194,7 +3194,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     .card:has(.card-dot.orange)  { --card-tone: var(--messagebus-stroke); }
     .card:has(.card-dot.slate)   { --card-tone: var(--external-stroke); }
     .card-dot { box-shadow: 0 0 0 3px color-mix(in srgb, var(--card-tone, transparent) 16%, transparent); }
-
+    
     /* ==========================================================
        Print stylesheet — hide interactive controls, force light,
        drop the grid so the diagram doesn't waste ink, use landscape
@@ -3202,7 +3202,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
        avoid an orphan card on a trailing page.
        ========================================================== */
     @page { size: landscape; margin: 1.5cm; }
-
+    
     @media print {
       /* A deliverable sheet prints on A4 portrait, and its canvas is paper, not a
          UI surface: the quiet dot field belongs to the interactive view. */
@@ -3218,14 +3218,14 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       }
       /* One page, like a printed specification: the diagram keeps the top half and
          the notes close under it instead of spilling a lone footer onto page two. */
-      html[data-sheet="true"] .diagram-container > svg { max-height: 108mm; }
+      html[data-sheet="true"] .diagram-container > svg { max-height: 94mm; }
       html[data-sheet="true"] .cards { display: none; }
-      html[data-sheet="true"] .archify-sheet-page { margin-top: 6mm; }
+      html[data-sheet="true"] .archify-sheet-page { margin-top: 4mm; }
       html[data-sheet="true"] .archify-sheet-heading {
         font-size: 8.5pt;
         margin-bottom: 1.5mm;
       }
-      html[data-sheet="true"] .archify-sheet-notes-block { margin-bottom: 5mm; }
+      html[data-sheet="true"] .archify-sheet-notes-block { margin-bottom: 3.5mm; }
       html[data-sheet="true"] .archify-sheet-notes {
         font-size: 7.4pt;
         line-height: 1.6;
@@ -3238,22 +3238,22 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       }
       html[data-sheet="true"] .archify-sheet-table table { font-size: 7pt; }
       html[data-sheet="true"] .archify-sheet-table th,
-      html[data-sheet="true"] .archify-sheet-table td { padding-top: 0.8mm; padding-bottom: 0.8mm; }
+      html[data-sheet="true"] .archify-sheet-table td { padding-top: 0.6mm; padding-bottom: 0.6mm; }
       html[data-sheet="true"] .archify-sheet-design ul {
-        font-size: 6.8pt;
-        line-height: 1.62;
+        font-size: 6.6pt;
+        line-height: 1.55;
       }
       html[data-sheet="true"] .archify-sheet-legend {
-        margin-top: 5mm;
-        gap: 7mm;
-        font-size: 7pt;
-      }
-      html[data-sheet="true"] .archify-sheet-footer {
-        margin-top: 6mm;
-        padding-top: 3mm;
+        margin-top: 3mm;
+        gap: 6mm;
         font-size: 6.8pt;
       }
-
+      html[data-sheet="true"] .archify-sheet-footer {
+        margin-top: 2.5mm;
+        padding-top: 2mm;
+        font-size: 6.8pt;
+      }
+    
       /* Force the FULL light palette — including component fills/strokes and
          lane/arrow colors — so printing from dark theme doesn't put neon
          strokes and translucent dark fills on white paper. */
@@ -3330,7 +3330,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       }
       h1, .subtitle { color: #0f172a; }
     }
-
+    
     /* ==========================================================
        TOOLBAR (theme toggle + export menu)
        ========================================================== */
@@ -3995,7 +3995,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       color: var(--text-faint);
       font-size: 0.6875rem;
     }
-
+    
     /* Toast — brief feedback for actions like "copied" */
     .archify-toast {
       position: fixed;
@@ -4019,7 +4019,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       opacity: 1;
       transform: translateX(-50%) translateY(0);
     }
-
+    
     @media (max-width: 720px) {
       body { padding: 1rem; }
       .toolbar .preset-menu,
@@ -4289,27 +4289,27 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         min-width: 720px;
       }
     }
-
+    
     @media (max-width: 420px) {
       .export-menu-section { grid-template-columns: 1fr; }
       .export-menu-heading,
       .toolbar .export-menu button[data-action="route-share-card"],
       .toolbar .export-menu button[data-action="reach-share-card"] { grid-column: 1; }
     }
-
+    
     @media (prefers-reduced-motion: reduce) {
       .toolbar .preset-menu.open,
       .toolbar .export-menu.open { animation: none; }
       .toolbar-chevron { transition: none; }
     }
-
+    
     @media (max-width: 360px) {
       .toolbar { gap: 0.25rem; }
       .toolbar button { padding-right: 0.58rem; padding-left: 0.58rem; }
       .toolbar #btn-motion { min-width: 4.4rem; padding-right: 0.58rem; padding-left: 0.58rem; }
       #theme-label, #preset-label, #present-label { display: none; }
     }
-
+    
     /* ==========================================================
        SVG SEMANTIC CLASSES — use these instead of inline fill/stroke
        ========================================================== */
@@ -4317,7 +4317,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     .c-mask       { fill: var(--mask); stroke: none; }
     .c-lane-rule  { stroke: var(--lane-stroke); fill: none; opacity: 0.7; }
     .c-lane-wash  { fill: var(--lane-fill); stroke: none; }
-
+    
     .c-frontend   { fill: var(--frontend-fill);   stroke: var(--frontend-stroke); }
     .c-backend    { fill: var(--backend-fill);    stroke: var(--backend-stroke); }
     .c-database   { fill: var(--database-fill);   stroke: var(--database-stroke); }
@@ -4325,7 +4325,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     .c-security   { fill: var(--security-fill);   stroke: var(--security-stroke); }
     .c-messagebus { fill: var(--messagebus-fill); stroke: var(--messagebus-stroke); }
     .c-external   { fill: var(--external-fill);   stroke: var(--external-stroke); }
-
+    
     /* Text helpers */
     .t-primary { fill: var(--text); }
     .t-muted   { fill: var(--text-muted); }
@@ -4337,13 +4337,13 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     .t-security   { fill: var(--security-stroke); }
     .t-messagebus { fill: var(--messagebus-stroke); }
     .t-external   { fill: var(--external-stroke); }
-
+    
     /* Relationship labels share the exact color token used by their path. */
     .t-edge-default  { fill: var(--arrow); }
     .t-edge-emphasis { fill: var(--arrow-emphasis); }
     .t-edge-security { fill: var(--security-stroke); }
     .t-edge-dashed   { fill: var(--database-stroke); }
-
+    
     /* Classic canvas: a quiet dot field replaces drafting grid lines, and nodes
        read as lifted cards with hairline strokes. Paint only; authored geometry,
        hit areas and exports keep their canonical shapes. */
@@ -4374,7 +4374,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     html[data-preset="classic"]:not([data-motion="still"]) .diagram-container > svg [data-node-id]:hover {
       transform: translateY(-1.5px);
     }
-
+    
     /* Semantic Sigils are small authored role stamps, not icons from a brand
        pack and not viewer controls. Prefix selectors with svg so the canonical
        export's SVG-only stylesheet collector keeps them automatically. */
@@ -4396,7 +4396,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     svg .s-security   { color: var(--security-stroke); }
     svg .s-messagebus { color: var(--messagebus-stroke); }
     svg .s-external   { color: var(--external-stroke); }
-
+    
     /* Brand Marks are authored identity badges. Their color is contained
        inside one neutral plate so vendor color never replaces Archify's
        semantic node and relationship vocabulary. */
@@ -4417,7 +4417,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     }
     svg[data-preset="blueprint"] .brand-mark-badge,
     svg[data-preset="blueprint"] .brand-mark-frame { rx: 1px; }
-
+    
     /* Reading Depth is a viewer-only level-of-detail layer. MAP preserves the
        authored structure and primary labels, READ restores relationship labels
        and node context, and FULL restores tags and fine annotations. Semantic
@@ -4437,7 +4437,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     .diagram-container[data-detail-level="map"] svg [data-detail-anchor] {
       transform: translateY(8px);
     }
-
+    
     /* Focus, lens, preview, route, and story states are stronger reader intent than
        the global zoom level. Reveal only their exact semantic matches. */
     svg[data-focus-active] [data-focus-match][data-detail],
@@ -4467,19 +4467,19 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     svg[data-route-active] [data-route-match] [data-detail-anchor],
     svg [data-node-id]:hover [data-detail-anchor],
     svg [data-node-id]:focus-visible [data-detail-anchor] { transform: none; }
-
+    
     /* Arrows */
     .a-default   { stroke: var(--arrow); fill: none; }
     .a-emphasis  { stroke: var(--arrow-emphasis); fill: none; }
     .a-security  { stroke: var(--security-stroke); fill: none; stroke-dasharray: 5,5; }
     .a-dashed    { stroke: var(--database-stroke); fill: none; stroke-dasharray: 4,4; }
-
+    
     /* Arrowhead markers reference these */
     .m-default   { fill: var(--arrow); }
     .m-emphasis  { fill: var(--arrow-emphasis); }
     .m-security  { fill: var(--security-stroke); }
     .m-dashed    { fill: var(--database-stroke); }
-
+    
     /* Stable semantic exploration hooks emitted by every renderer. */
     svg [data-node-id] {
       cursor: pointer;
@@ -4619,7 +4619,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     svg[data-focus-active] [data-focus-selected] {
       filter: drop-shadow(0 0 10px var(--frontend-stroke));
     }
-
+    
     /* Authored Reachability is a bounded graph query over the relationships
        already present in the artifact. Upstream walks incoming edges;
        downstream walks outgoing edges. It never claims runtime causality and
@@ -4645,7 +4645,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     svg[data-preset="blueprint"][data-reach-active] [data-edge-from][data-reach-match] {
       filter: none;
     }
-
+    
     /* Direct Relationship Explorer makes authored paths a real input surface
        without changing their visible stroke or canonical SVG. A transparent
        runtime rail supplies forgiving pointer geometry; the exact authored
@@ -4694,7 +4694,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     @media (hover: none), (pointer: coarse) {
       .relationship-hit-rail { stroke-width: 24; }
     }
-
+    
     /* Relationship Preview is temporary exploration state layered on top of
        neighborhood focus. It changes emphasis only; exported geometry and the
        relationship's original solid/dashed visual language stay untouched. */
@@ -4757,7 +4757,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     .relationship-flow-token {
       animation: archify-relationship-token-life 1.2s linear 1 both;
     }
-
+    
     .semantic-flow-token-halo {
       fill: var(--mask);
       stroke: currentColor;
@@ -4791,7 +4791,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     svg[data-preset="blueprint"] .semantic-flow-token { filter: none; }
     svg[data-preset="editorial"] .semantic-flow-token { filter: none; }
     html[data-embed="true"] .relationship-pulse-overlay { display: none; }
-
+    
     /* Intent Trace is a temporary, pre-click exploration layer. Related
        topology stays readable while a short viewer-only signal runs over
        cloned edge geometry; the authored edge remains untouched underneath. */
@@ -4855,7 +4855,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       white-space: nowrap;
       border: 0;
     }
-
+    
     /* Route Probe separates a durable two-point query from selection and
        one-hop hover. Only the chosen shortest directed path stays prominent;
        the traveling signal is cloned viewer geometry and never authored SVG. */
@@ -4936,7 +4936,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     svg[data-preset="editorial"] [data-route-step],
     svg[data-preset="editorial"] .route-probe-flow,
     svg[data-preset="editorial"] .route-journey-flow { filter: none; }
-
+    
     svg[data-preset="editorial"] .c-grid {
       stroke-dasharray: 1 4;
       opacity: 0.48;
@@ -4950,7 +4950,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     svg[data-preset="editorial"][data-focus-active] [data-focus-selected] {
       filter: drop-shadow(0 2px 2px color-mix(in srgb, var(--text) 18%, transparent));
     }
-
+    
     svg[data-preset="blueprint"] .c-grid {
       stroke-dasharray: 1 3;
       opacity: 0.78;
@@ -4976,26 +4976,43 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     svg[data-preset="blueprint"][data-relationship-preview-active] [data-relationship-preview-target] {
       filter: drop-shadow(0 0 3px var(--frontend-stroke));
     }
-
-    /* Dashed boundary variants */
-    .c-security-group { fill: transparent; stroke: var(--security-stroke); stroke-dasharray: 4,4; }
-    .c-region         { fill: rgba(251, 191, 36, 0.05); stroke: var(--cloud-stroke); stroke-dasharray: 8,4; }
+    
+    /* Dashed boundary variants. A zone may declare a semantic tone; the frame,
+       its pill and its title all read from --boundary-stroke so one authored
+       value colours the whole zone. */
+    [data-boundary-tone="frontend"]   { --boundary-stroke: var(--frontend-stroke); }
+    [data-boundary-tone="backend"]    { --boundary-stroke: var(--backend-stroke); }
+    [data-boundary-tone="database"]   { --boundary-stroke: var(--database-stroke); }
+    [data-boundary-tone="cloud"]      { --boundary-stroke: var(--cloud-stroke); }
+    [data-boundary-tone="security"]   { --boundary-stroke: var(--security-stroke); }
+    [data-boundary-tone="messagebus"] { --boundary-stroke: var(--messagebus-stroke); }
+    [data-boundary-tone="external"]   { --boundary-stroke: var(--external-stroke); }
+    
+    .c-security-group { fill: transparent; stroke: var(--boundary-stroke, var(--security-stroke)); stroke-dasharray: 4,4; }
+    .c-region {
+      fill: color-mix(in srgb, var(--boundary-stroke, var(--cloud-stroke)) 14%, transparent);
+      stroke: var(--boundary-stroke, var(--cloud-stroke));
+      stroke-dasharray: 8,4;
+    }
     .c-lane           { fill: var(--lane-fill); stroke: var(--lane-stroke); stroke-dasharray: 6,6; }
-
+    
     /* A zone name is read before anything inside it, so it gets a filled pill
        instead of a bare word sitting on the frame: on paper a 9px amber caption
        disappeared next to the device photos. */
     g[data-graph-role="structural-frame-label"] rect[data-graph-role="structural-frame-label-mask"] {
-      fill: color-mix(in srgb, var(--cloud-stroke) 16%, #ffffff);
-      stroke: var(--cloud-stroke);
+      fill: color-mix(in srgb, var(--boundary-stroke, var(--cloud-stroke)) 16%, #ffffff);
+      stroke: var(--boundary-stroke, var(--cloud-stroke));
       stroke-width: 1.2;
       rx: 6px;
+    }
+    g[data-graph-role="structural-frame-label"] text[data-boundary-label] {
+      fill: var(--boundary-stroke, var(--cloud-stroke));
     }
     g[data-graph-role="structural-frame-label"] text[data-boundary-label] {
       font-weight: 700;
       letter-spacing: 0.01em;
     }
-
+    
     /* Live plays one relay per cycle: a comet (halo, tail, head) leaves each
        source when the signal reaches it, travels at one shared speed, leaves a
        soft wake, and lands as a ripple while its target glows. Downstream edges
@@ -5192,7 +5209,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--backend-stroke) 52%, transparent); }
       55%, 100% { box-shadow: 0 0 0 0.32rem transparent; }
     }
-
+    
     @keyframes archify-intent-trace-flow {
       0% { opacity: 0.28; stroke-dashoffset: 0; }
       12%, 78% { opacity: 0.94; }
@@ -5223,7 +5240,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       13%, 82% { opacity: 1; }
       100% { opacity: 0; }
     }
-
+    
     @keyframes archify-share-cue-enter {
       from { opacity: 0; transform: translate(-50%, -0.45rem); }
       to { opacity: 1; transform: translate(-50%, 0); }
